@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Dashboard • StudyLink</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+<div class="container">
+    <div class="row space">
+        <h1>Dashboard</h1>
+        <button class="btn secondary" onclick="StudyLink.logout()">Logout</button>
+    </div>
+
+    <div class="card">
+        <h2>Start a session</h2>
+        <div class="row">
+            <input id="sessionTitle" placeholder="e.g., CS Homework" />
+            <button class="btn" onclick="StudyLink.startSession()">Start</button>
+        </div>
+        <p class="muted" id="me"></p>
+    </div>
+
+    <div class="card">
+        <h2>Add a friend</h2>
+        <div class="row">
+            <input id="friendEmail" placeholder="friend@email.com" />
+            <button class="btn" onclick="StudyLink.addFriend()">Add</button>
+        </div>
+        <p class="muted" id="friendMsg"></p>
+        <div id="friendsList" class="list"></div>
+    </div>
+
+    <div class="card">
+        <h2>Friends studying (MVP: everyone)</h2>
+        <div id="activeSessions" class="list"></div>
+        <p class="muted">Auto-refreshes every 10 seconds.</p>
+    </div>
+</div>
+
+<script src="/static/app.js"></script>
+<script>StudyLink.initDashboard();</script>
+</body>
+</html>

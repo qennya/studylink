@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Session • StudyLink</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+<div class="container">
+    <div class="row space">
+        <h1 id="title">Session</h1>
+        <a class="btn secondary" href="/dashboard">Back</a>
+    </div>
+
+    <div class="card">
+        <p class="muted">Session ID: <span id="sid"></span></p>
+        <div class="row">
+            <select id="statusSelect">
+                <option value="Deep focus">Deep focus</option>
+                <option value="Light focus">Light focus</option>
+                <option value="On a break">On a break</option>
+                <option value="Need water">Need water</option>
+                <option value="Done for now">Done for now</option>
+            </select>
+            <button class="btn" onclick="StudyLink.setStatus()">Set status</button>
+        </div>
+        <div class="row">
+            <button class="btn secondary" onclick="StudyLink.joinSession()">Join silently</button>
+            <button class="btn danger" onclick="StudyLink.endSession()">End session (owner)</button>
+        </div>
+        <p class="muted" id="sessionMeta"></p>
+    </div>
+
+    <div class="card">
+        <h2>Recent updates</h2>
+        <div id="events" class="list"></div>
+    </div>
+</div>
+
+<script src="/static/app.js"></script>
+<script>
+    StudyLink.initSession("{{ session_id }}");
+</script>
+</body>
+</html>
