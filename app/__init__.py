@@ -7,7 +7,6 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object("app.config.Config")
 
-    # Frontend pages
     @app.get("/")
     def index():
         return render_template("index.html")
@@ -22,8 +21,15 @@ def create_app():
 
     @app.get("/dashboard")
     def dashboard_page():
-        return render_template("dashboard.html")
+        return render_template("dashboard.html", active_page="dashboard")
 
+    @app.get("/study-rooms")
+    def study_rooms_page():
+        return render_template("study_rooms.html", active_page="study_rooms")
+
+    @app.get("/friends")
+    def friends_page():
+        return render_template("friends.html", active_page="friends")
 
     @app.get("/session/<session_id>")
     def session_page(session_id: str):
@@ -33,10 +39,8 @@ def create_app():
     def summary_page(session_id: str):
         return render_template("summary.html", session_id=session_id)
 
-    # API blueprints
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(sessions_bp, url_prefix="/api")
     app.register_blueprint(friends_bp, url_prefix="/api")
-
 
     return app

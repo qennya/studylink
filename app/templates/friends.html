@@ -1,0 +1,39 @@
+{% extends "base_app.html" %}
+
+{% block title %}Friends • StudyLink{% endblock %}
+
+{% block content %}
+<section class="page-header page-header-row">
+    <div>
+        <h1>Friends</h1>
+        <p class="muted">Study together and stay motivated.</p>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-head">
+        <h2>Add a Friend</h2>
+    </div>
+
+    <div class="row">
+        <input id="friendEmail" placeholder="friend@email.com" />
+        <button class="btn" onclick="StudyLink.addFriend()">Add Friend</button>
+    </div>
+
+    <p class="muted" id="friendMsg"></p>
+</section>
+
+<section class="panel">
+    <div class="panel-head">
+        <h2>Your Friends</h2>
+    </div>
+
+    <div id="friendsList" class="stack-list"></div>
+</section>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+    StudyLink.initFriendsPage();
+</script>
+{% endblock %}

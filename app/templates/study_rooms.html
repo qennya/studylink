@@ -1,0 +1,29 @@
+{% extends "base_app.html" %}
+
+{% block title %}Study Rooms • StudyLink{% endblock %}
+
+{% block content %}
+<section class="page-header page-header-row">
+    <div>
+        <h1>Study Rooms</h1>
+        <p class="muted">Join a room or create your own.</p>
+    </div>
+    <button class="btn" type="button" onclick="StudyLink.startSession()">+ Create Room</button>
+</section>
+
+<section class="panel">
+    <div class="stack">
+        <input id="sessionTitle" placeholder="New room title" />
+    </div>
+</section>
+
+<section>
+    <div id="studyRoomsList" class="room-grid"></div>
+</section>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+    StudyLink.initStudyRooms();
+</script>
+{% endblock %}

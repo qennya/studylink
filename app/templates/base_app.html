@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}StudyLink{% endblock %}</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-mark">⌚</div>
+            <div class="brand-text">studylink</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">
+                Dashboard
+            </a>
+            <a href="/study-rooms" class="nav-link {% if active_page == 'study_rooms' %}active{% endif %}">
+                Study Rooms
+            </a>
+            <a href="/friends" class="nav-link {% if active_page == 'friends' %}active{% endif %}">
+                Friends
+            </a>
+            <a href="#" class="nav-link disabled">
+                Statistics
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="btn btn-secondary btn-full" onclick="StudyLink.logout()">Logout</button>
+        </div>
+    </aside>
+
+    <main class="app-main">
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+<script src="/static/app.js"></script>
+{% block page_scripts %}{% endblock %}
+</body>
+</html>

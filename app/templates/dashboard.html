@@ -1,44 +1,57 @@
-<!doctype html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title>Dashboard • StudyLink</title>
-    <link rel="stylesheet" href="/static/styles.css" />
-</head>
-<body>
-<div class="container">
-    <div class="row space">
-        <h1>Dashboard</h1>
-        <button class="btn secondary" onclick="StudyLink.logout()">Logout</button>
-    </div>
+{% extends "base_app.html" %}
 
-    <div class="card">
-        <h2>Start a session</h2>
-        <div class="row">
-            <input id="sessionTitle" placeholder="e.g., CS Homework" />
-            <button class="btn" onclick="StudyLink.startSession()">Start</button>
+{% block title %}Dashboard • StudyLink{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div>
+        <h1 id="dashboardGreeting">Welcome back</h1>
+        <p class="muted" id="me">Let’s have a productive study session today.</p>
+    </div>
+</section>
+
+<section class="dashboard-grid">
+    <div class="panel panel-large">
+        <div class="panel-head">
+            <h2>Focus Timer</h2>
+            <div class="timer-mode-toggle">
+                <button id="focusModeBtn" class="pill-btn active" type="button">Focus</button>
+                <button id="breakModeBtn" class="pill-btn" type="button">Break</button>
+            </div>
         </div>
-        <p class="muted" id="me"></p>
-    </div>
 
-    <div class="card">
-        <h2>Add a friend</h2>
-        <div class="row">
-            <input id="friendEmail" placeholder="friend@email.com" />
-            <button class="btn" onclick="StudyLink.addFriend()">Add</button>
+        <div class="timer-display" id="timerDisplay">25:00</div>
+
+        <div class="timer-actions">
+            <button class="btn" type="button" id="startTimerBtn">Start</button>
+            <button class="btn btn-secondary" type="button" id="resetTimerBtn">Reset</button>
         </div>
-        <p class="muted" id="friendMsg"></p>
-        <div id="friendsList" class="list"></div>
     </div>
 
-    <div class="card">
-        <h2>Friends studying (MVP: everyone)</h2>
-        <div id="activeSessions" class="list"></div>
-        <p class="muted">Auto-refreshes every 10 seconds.</p>
-    </div>
-</div>
+    <div class="panel">
+        <div class="panel-head">
+            <h2>Start a Study Room</h2>
+        </div>
 
-<script src="/static/app.js"></script>
-<script>StudyLink.initDashboard();</script>
-</body>
-</html>
+        <div class="stack">
+            <input id="sessionTitle" placeholder="e.g., CS Homework Sprint" />
+            <button class="btn" onclick="StudyLink.startSession()">Create Room</button>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-head">
+            <h2>Friends Studying Right Now</h2>
+        </div>
+
+        <div id="activeSessions" class="stack-list"></div>
+        <p class="muted small">Auto-refreshes every 10 seconds.</p>
+    </div>
+</section>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+    StudyLink.initDashboard();
+</script>
+{% endblock %}
