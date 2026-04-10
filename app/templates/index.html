@@ -1,18 +1,694 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>StudyLink</title>
-    <link rel="stylesheet" href="/static/styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>StudyLink◇ — Study together, without the noise</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+        /* ── Tokens (matches app design system) ───────────────── */
+        :root {
+            --bg:           #ffffff;
+            --sidebar-bg:   #cce4f0;
+            --panel:        #ffffff;
+            --panel-soft:   #f9f9f9;
+            --text:         #1a1a1a;
+            --muted:        #888888;
+            --muted-light:  #bbbbbb;
+            --border:       #1a1a1a;
+            --accent:       #f0d060;
+            --accent-dark:  #d4b540;
+            --join-blue:    #8ecae6;
+            --join-green:   #b5e2b0;
+            --join-pink:    #f5a0b0;
+            --card-blue-bg: #daf0fb;
+            --card-green-bg:#dff5db;
+            --card-pink-bg: #fce0e6;
+            --radius-xl:    28px;
+            --radius-lg:    20px;
+            --radius-md:    14px;
+            --radius-pill:  999px;
+            --font-display: 'Playfair Display', Georgia, serif;
+            --font-body:    'DM Sans', system-ui, sans-serif;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--text);
+            background: #ffffff;
+            overflow-x: hidden;
+        }
+
+        a { color: inherit; text-decoration: none; }
+        img { display: block; max-width: 100%; }
+
+        /* ── Nav ───────────────────────────────────────────────── */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 48px;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(8px);
+            border-bottom: 1.5px solid #1a1a1a;
+        }
+
+        .nav-logo {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 400;
+            letter-spacing: -0.01em;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border: 2px solid #1a1a1a;
+            border-radius: var(--radius-pill);
+            padding: 9px 20px;
+            cursor: pointer;
+            font-family: var(--font-body);
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #1a1a1a;
+            background: #ffffff;
+            transition: background 0.15s;
+            white-space: nowrap;
+            width: fit-content;
+        }
+        .btn:hover { background: #f5f5f5; }
+        .btn-accent { background: var(--accent); }
+        .btn-accent:hover { background: var(--accent-dark); }
+
+        /* ── Hero ──────────────────────────────────────────────── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 24px 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decorative blue squiggle blobs — pure CSS */
+        .hero::before,
+        .hero::after {
+            content: '';
+            position: absolute;
+            border-radius: 60% 40% 50% 50% / 50% 60% 40% 50%;
+            background: var(--sidebar-bg);
+            opacity: 0.55;
+            z-index: 0;
+        }
+        .hero::before {
+            width: 320px; height: 420px;
+            top: 80px; left: -80px;
+            transform: rotate(-15deg);
+            animation: blob1 8s ease-in-out infinite alternate;
+        }
+        .hero::after {
+            width: 280px; height: 380px;
+            top: 60px; right: -60px;
+            transform: rotate(20deg);
+            border-radius: 50% 60% 40% 55% / 45% 50% 60% 40%;
+            animation: blob2 9s ease-in-out infinite alternate;
+        }
+
+        @keyframes blob1 {
+            0%   { border-radius: 60% 40% 50% 50% / 50% 60% 40% 50%; transform: rotate(-15deg) scale(1); }
+            100% { border-radius: 40% 60% 45% 55% / 55% 45% 55% 45%; transform: rotate(-8deg) scale(1.05); }
+        }
+        @keyframes blob2 {
+            0%   { border-radius: 50% 60% 40% 55% / 45% 50% 60% 40%; transform: rotate(20deg) scale(1); }
+            100% { border-radius: 60% 40% 55% 45% / 55% 45% 50% 55%; transform: rotate(12deg) scale(1.04); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.8rem, 7vw, 5rem);
+            font-weight: 400;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 20px;
+        }
+
+        .hero-title .star-cluster {
+            font-style: italic;
+            display: inline-block;
+            margin-left: 12px;
+            font-size: 0.7em;
+            letter-spacing: 0.05em;
+            vertical-align: middle;
+            opacity: 0.8;
+        }
+
+        .hero-sub {
+            font-size: 1.1rem;
+            color: var(--muted);
+            max-width: 480px;
+            margin: 0 auto 32px;
+            line-height: 1.6;
+        }
+
+        /* ── Room Cards Marquee ────────────────────────────────── */
+        .marquee-section {
+            width: 100%;
+            overflow: hidden;
+            padding: 56px 0;
+            position: relative;
+        }
+
+        .marquee-track {
+            display: flex;
+            gap: 28px;
+            width: max-content;
+            animation: marquee 38s linear infinite;
+        }
+
+        .marquee-track:hover { animation-play-state: paused; }
+
+        @keyframes marquee {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .room-card {
+            flex-shrink: 0;
+            width: 320px;
+            background: #ffffff;
+            border: 2px solid #1a1a1a;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .room-card-img {
+            width: 100%;
+            height: 210px;
+            object-fit: cover;
+            background: var(--card-blue-bg);
+            display: block;
+        }
+
+        .room-card-img-placeholder {
+            width: 100%;
+            height: 210px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+
+        .room-card-body {
+            padding: 16px 18px 18px;
+        }
+
+        .room-card-title {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .room-card-meta {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        /* Fade edges */
+        .marquee-section::before,
+        .marquee-section::after {
+            content: '';
+            position: absolute;
+            top: 0; bottom: 0;
+            width: 80px;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .marquee-section::before { left: 0;  background: linear-gradient(to right,  #fff, transparent); }
+        .marquee-section::after  { right: 0; background: linear-gradient(to left, #fff, transparent); }
+
+        /* ── Middle section ────────────────────────────────────── */
+        .middle {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 72px;
+            align-items: center;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 100px 48px;
+        }
+
+        .middle-text p {
+            font-size: 1.15rem;
+            color: var(--muted);
+            line-height: 1.8;
+            margin-bottom: 24px;
+        }
+
+        /* Status Feed mock */
+        .status-feed-mock {
+            background: #ffffff;
+            border: 2px solid #1a1a1a;
+            border-radius: var(--radius-xl);
+            padding: 36px;
+        }
+
+        .feed-mock-title {
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: 1.7rem;
+            font-weight: 400;
+            margin-bottom: 26px;
+        }
+
+        .feed-mock-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 0;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        .feed-mock-item:last-child { border-bottom: none; }
+
+        .feed-mock-avatar {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #e0e0e0;
+            flex-shrink: 0;
+            border: 2px solid #1a1a1a;
+        }
+
+        .feed-mock-name {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .feed-mock-time {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .feed-mock-status {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        /* ── Features section ──────────────────────────────────── */
+        .features {
+            background: #ffffff;
+            border-top: 2px solid #1a1a1a;
+            border-bottom: 2px solid #1a1a1a;
+            padding: 80px 40px;
+        }
+
+        .features-inner {
+            max-width: 960px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 48px;
+            align-items: start;
+        }
+
+        .features-heading {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 400;
+            margin-bottom: 12px;
+        }
+
+        .feature-list {
+            grid-column: 1;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .feature-list li {
+            font-size: 1rem;
+            color: var(--text);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .feature-list li::before {
+            content: counter(li-count) ".";
+            counter-increment: li-count;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .feature-list { counter-reset: li-count; }
+
+        .feature-list .it {
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: 1.1rem;
+            color: var(--muted);
+            display: block;
+            margin-top: 14px;
+        }
+
+        .feature-pills {
+            grid-column: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        /* Create room mock */
+        .create-room-mock {
+            grid-column: 3;
+            background: #ffffff;
+            border: 2px solid #1a1a1a;
+            border-radius: var(--radius-xl);
+            padding: 20px;
+        }
+
+        .create-room-mock h3 {
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .mock-input {
+            width: 100%;
+            border: 1.5px solid #cccccc;
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            font-family: var(--font-body);
+            font-size: 0.88rem;
+            color: var(--muted);
+            margin-bottom: 10px;
+            background: #ffffff;
+        }
+
+        /* ── CTA Section ───────────────────────────────────────── */
+        .cta {
+            text-align: center;
+            padding: 100px 24px;
+        }
+
+        .cta-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.2rem, 5vw, 3.8rem);
+            font-weight: 400;
+            margin-bottom: 32px;
+            line-height: 1.15;
+        }
+
+        /* ── Footer ────────────────────────────────────────────── */
+        footer {
+            border-top: 2px solid #1a1a1a;
+            padding: 32px 48px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .footer-links a {
+            font-size: 0.85rem;
+            color: var(--muted);
+            transition: color 0.15s;
+        }
+        .footer-links a:hover { color: var(--text); }
+
+        .footer-copy {
+            font-size: 0.85rem;
+            color: var(--muted);
+            text-align: center;
+            width: 100%;
+        }
+
+        /* ── Fade-in on scroll ─────────────────────────────────── */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── Responsive ────────────────────────────────────────── */
+        @media (max-width: 800px) {
+            nav { padding: 14px 20px; }
+            .middle { grid-template-columns: 1fr; padding: 60px 24px; gap: 40px; }
+            .features-inner { grid-template-columns: 1fr; }
+            .features-heading { grid-column: 1; }
+            .feature-pills { flex-direction: row; flex-wrap: wrap; }
+            .create-room-mock { grid-column: 1; }
+            footer { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-    <h1>StudyLink</h1>
-    <p class="muted">Cozy, silent study sessions with friends.</p>
-    <div class="row">
-        <a class="btn" href="/login">Login</a>
-        <a class="btn secondary" href="/register">Register</a>
+
+<!-- ── Nav ─────────────────────────────────────────────────── -->
+<nav>
+    <div class="nav-logo">StudyLink◇</div>
+    <div class="nav-actions">
+        <a href="#how-it-works" class="btn">How it Works</a>
+        <a href="/register" class="btn btn-accent">Sign up / Log In</a>
+    </div>
+</nav>
+
+<!-- ── Hero ────────────────────────────────────────────────── -->
+<section class="hero">
+    <div class="hero-content">
+        <h1 class="hero-title">
+            ☆°｡ StudyLink°｡☆
+        </h1>
+        <p class="hero-sub">
+            Built for low social battery students who still want connection.
+        </p>
+        <a href="/register" class="btn btn-accent">
+            ▷ Get Started
+        </a>
+    </div>
+</section>
+
+<!-- ── Scrolling room cards ─────────────────────────────────── -->
+<div class="marquee-section">
+    <div class="marquee-track" id="marqueeTrack">
+        <!-- Cards duplicated in JS for infinite loop -->
     </div>
 </div>
+
+<!-- ── Middle: copy + status feed ──────────────────────────── -->
+<section class="middle" id="how-it-works">
+    <div class="middle-text fade-in">
+        <div class="hero-title">Study together, without the pressure.</div>
+
+
+        <p>
+            Whether you're grinding assignments,
+            using a focus timer, or just need a shared
+            space to stay on track,
+        </p>
+        <p>
+            StudyLink gives you the benefits of
+            studying with others, without the noise,
+            awkwardness, or burnout of traditional
+            group study.
+        </p>
+    </div>
+
+    <!-- Decorative status feed -->
+    <div class="status-feed-mock fade-in" style="transition-delay: 0.15s;">
+        <div class="feed-mock-title">Status Feeds</div>
+
+        <div class="feed-mock-item">
+            <img class="feed-mock-avatar" src="https://i.pinimg.com/736x/bf/fc/34/bffc34b7e0fa9289e3f6d570092aa35b.jpg"
+                 alt="Qennya"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='grid';" />
+            <div class="feed-mock-avatar" id="av1" style="background:#daf0fb;display:grid;place-items:center;font-size:1.1rem;">🎨</div>
+            <div>
+                <div><span class="feed-mock-name">Qennya</span><span class="feed-mock-time">4:12 PM</span></div>
+                <div class="feed-mock-status">Taking a Break</div>
+            </div>
+        </div>
+
+        <div class="feed-mock-item">
+            <img class="feed-mock-avatar" src="https://i.pinimg.com/736x/59/a2/82/59a282c468ba6a5b593a1d20b7a90178.jpg"
+                 alt="Hinata"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='grid';" />
+            <div class="feed-mock-avatar" style="background:#dff5db;display:grid;place-items:center;font-size:1.1rem;">🔥</div>
+            <div>
+                <div><span class="feed-mock-name">Hinata!!!</span><span class="feed-mock-time">3:28 PM</span></div>
+                <div class="feed-mock-status">Listening to music</div>
+            </div>
+        </div>
+
+        <div class="feed-mock-item">
+            <img class="feed-mock-avatar" src="https://i.pinimg.com/736x/51/3e/91/513e91c73aecf39caab69e0b975224af.jpg"
+                 alt="June"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='grid';" />
+            <div class="feed-mock-avatar" style="background:#fce0e6;display:grid;place-items:center;font-size:1.1rem;">📖</div>
+            <div>
+                <div><span class="feed-mock-name">June</span><span class="feed-mock-time">1:00 PM</span></div>
+                <div class="feed-mock-status">Crashing outtt</div>
+            </div>
+        </div>
+
+        <div class="feed-mock-item">
+            <img class="feed-mock-avatar" src="https://i.pinimg.com/736x/a1/93/40/a193400de2f93d05227e7b02e9384d38.jpg"
+                 alt="Ally"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='grid';" />
+            <div class="feed-mock-avatar" style="background:#e8e8e8;display:grid;place-items:center;font-size:1.1rem;">🎵</div>
+            <div>
+                <div><span class="feed-mock-name">Ally</span><span class="feed-mock-time">12:53 PM</span></div>
+                <div class="feed-mock-status">Left Study Room</div>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<!-- ── Features ─────────────────────────────────────────────── -->
+<section class="features" id="features">
+    <div class="features-inner">
+
+        <h2 class="features-heading fade-in">Other Features</h2>
+
+        <ul class="feature-list fade-in" style="transition-delay:0.1s;">
+            <li>Join or create a study room</li>
+            <li>Send occasional updates!</li>
+            <span class="it">it's simple!</span>
+        </ul>
+
+        <div class="feature-pills fade-in" style="transition-delay:0.2s;">
+            <span class="btn">Focus Timer</span>
+            <span class="btn">Task Lists</span>
+            <span class="btn">Add Friends</span>
+        </div>
+
+        <div class="create-room-mock fade-in" style="transition-delay:0.3s;">
+            <h3>Start a Study Room</h3>
+            <input class="mock-input" placeholder="ex. Finishing HW 3" readonly />
+            <button class="btn btn-accent" style="width:100%;">Create Room</button>
+        </div>
+
+    </div>
+</section>
+
+<!-- ── CTA ──────────────────────────────────────────────────── -->
+<section class="cta">
+    <h2 class="cta-title fade-in">Ready to lock in?</h2>
+    <a href="/register" class="btn btn-accent fade-in" style="transition-delay:0.1s; font-size:1rem; padding:12px 28px;">
+        ▷ Get Started
+    </a>
+</section>
+
+<!-- ── Footer ───────────────────────────────────────────────── -->
+<footer>
+    <div class="footer-links">
+        <a href="#">About StudyLink</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Contact/Support</a>
+    </div>
+    <p class="footer-copy">© 2026 StudyLink</p>
+</footer>
+
+<script>
+    // ── Marquee cards data ──────────────────────────────────────
+    // To add real images: fill in the `img` field with any URL.
+    // If `img` is empty or fails to load, falls back to `emoji`.
+    const rooms = [
+        { title: "Studying for Wang Exam", participants: 3, img: "https://i.pinimg.com/736x/80/85/e0/8085e06a8de8d4c0bf5c6f24a4ee6942.jpg", emoji: "😩", color: "#daf0fb" },
+        { title: "Reading Lecture 1",      participants: 1, img: "https://i.pinimg.com/736x/34/39/9c/34399c6fb20f0c46e7df62869dcaaac8.jpg", emoji: "🌿", color: "#dff5db" },
+        { title: "HW 2 due tonight",       participants: 3, img: "https://i.pinimg.com/736x/7c/ee/ec/7ceeecc522430fddca3024217114291a.jpg", emoji: "😵", color: "#e8e8e8" },
+        { title: "Physics Lecture 1 & 2",  participants: 2, img: "https://i.pinimg.com/736x/4c/1e/00/4c1e007d03c40d8829425f775e62f26a.jpg", emoji: "🧪", color: "#fce0e6" },
+        { title: "CS4800 Final Prep",      participants: 4, img: "https://i.pinimg.com/736x/2a/fe/24/2afe24462ea372fd23d6256f591c8f37.jpg", emoji: "💻", color: "#daf0fb" },
+        { title: "Bio Study Group",        participants: 2, img: "https://i.pinimg.com/1200x/1a/3c/71/1a3c712a126644d7987d6877ae79b536.jpg", emoji: "🔬", color: "#dff5db" },
+        { title: "Econ Midterm Grind",     participants: 1, img: "https://i.pinimg.com/736x/80/85/e0/8085e06a8de8d4c0bf5c6f24a4ee6942.jpg", emoji: "📈", color: "#f5f5f5" },
+        { title: "Math 241 HW",            participants: 3, img: "https://i.pinimg.com/736x/34/39/9c/34399c6fb20f0c46e7df62869dcaaac8.jpg", emoji: "📐", color: "#fce0e6" },
+    ];
+
+    function buildCard(room) {
+        const card = document.createElement("div");
+        card.className = "room-card";
+
+        const imageHtml = room.img
+            ? `<img class="room-card-img" src="${room.img}" alt="${room.title}"
+                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+           <div class="room-card-img-placeholder" style="display:none;background:${room.color};">${room.emoji}</div>`
+            : `<div class="room-card-img-placeholder" style="background:${room.color};">${room.emoji}</div>`;
+
+        card.innerHTML = `
+        ${imageHtml}
+        <div class="room-card-body">
+            <div class="room-card-title">${room.title}</div>
+            <div class="room-card-meta">${room.participants} participant${room.participants !== 1 ? 's' : ''}</div>
+        </div>
+    `;
+        return card;
+    }
+
+    const track = document.getElementById("marqueeTrack");
+
+    // Build two sets for seamless loop
+    [...rooms, ...rooms].forEach(room => {
+        track.appendChild(buildCard(room));
+    });
+
+    // ── Scroll fade-in observer ─────────────────────────────────
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("visible");
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
+</script>
+
 </body>
 </html>

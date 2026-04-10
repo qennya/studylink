@@ -8,38 +8,99 @@
 </head>
 <body class="app-body">
 <div class="app-shell">
+
     <aside class="sidebar">
+
+        <!-- Logo -->
         <div class="brand">
-            <div class="brand-mark">⌚</div>
-            <div class="brand-text">studylink</div>
+            StudyLink<span class="brand-diamond">◇</span>
         </div>
 
+        <!-- Nav -->
         <nav class="sidebar-nav">
-            <a href="/dashboard" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">
+            <a href="/dashboard"
+               class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">
                 Dashboard
             </a>
-            <a href="/study-rooms" class="nav-link {% if active_page == 'study_rooms' %}active{% endif %}">
+            <a href="/study-rooms"
+               class="nav-link {% if active_page == 'study_rooms' %}active{% endif %}">
                 Study Rooms
             </a>
-            <a href="/friends" class="nav-link {% if active_page == 'friends' %}active{% endif %}">
-                Friends
-            </a>
-            <a href="#" class="nav-link disabled">
-                Statistics
+            <a href="/private-room"
+               class="nav-link {% if active_page == 'private_room' %}active{% endif %}">
+                My Private Room
             </a>
         </nav>
 
+        <!-- User profile footer -->
         <div class="sidebar-footer">
-            <button class="btn btn-secondary btn-full" onclick="StudyLink.logout()">Logout</button>
+            <div class="sidebar-user">
+                <img id="sidebarAvatar"
+                     class="sidebar-avatar"
+                     src=""
+                     alt="avatar"
+                     style="display:none;"
+                     onerror="this.style.display='none'; document.getElementById('sidebarAvatarPlaceholder').style.display='grid';" />
+                <div id="sidebarAvatarPlaceholder" class="sidebar-avatar-placeholder">
+                    👤
+                </div>
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name" id="sidebarName">—</div>
+                    <div class="sidebar-user-email" id="sidebarEmail">—</div>
+                </div>
+            </div>
+
+            <button
+                    class="btn btn-secondary btn-full"
+                    style="margin-top:14px; font-size:0.85rem; padding:9px 14px;"
+                    onclick="StudyLink.logout()">
+                Logout
+            </button>
         </div>
+
     </aside>
 
     <main class="app-main">
         {% block content %}{% endblock %}
     </main>
+
 </div>
 
 <script src="/static/app.js"></script>
+
+<!-- Populate sidebar user info on every page -->
+<script>
+    (async () => {
+        try {
+            const data = await StudyLink.fetchMePublic();
+            if (!data || !data.user) return;
+
+            const u = data.user;
+
+            // Name
+            const nameEl = document.getElementById('sidebarName');
+            if (nameEl) nameEl.textContent = u.displayName || u.email || '—';
+
+            // Email
+            const emailEl = document.getElementById('sidebarEmail');
+            if (emailEl) emailEl.textContent = u.email || '';
+
+            // Avatar — only show if a pfp_url is stored
+            if (u.pfp_url) {
+                const img = document.getElementById('sidebarAvatar');
+                const placeholder = document.getElementById('sidebarAvatarPlaceholder');
+                if (img) {
+                    img.src = u.pfp_url;
+                    img.style.display = 'block';
+                }
+                if (placeholder) placeholder.style.display = 'none';
+            }
+        } catch (_) {
+            // Not logged in — pages handle their own redirect
+        }
+    })();
+</script>
+
 {% block page_scripts %}{% endblock %}
 </body>
 </html>

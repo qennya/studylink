@@ -3,6 +3,7 @@ from .auth import auth_bp
 from .sessions import sessions_bp
 from .friends import friends_bp
 
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object("app.config.Config")
@@ -27,6 +28,10 @@ def create_app():
     def study_rooms_page():
         return render_template("study_rooms.html", active_page="study_rooms")
 
+    @app.get("/private-room")
+    def private_room_page():
+        return render_template("private_room.html", active_page="private_room")
+
     @app.get("/friends")
     def friends_page():
         return render_template("friends.html", active_page="friends")
@@ -35,12 +40,9 @@ def create_app():
     def session_page(session_id: str):
         return render_template("session.html", session_id=session_id)
 
-    @app.get("/summary/<session_id>")
-    def summary_page(session_id: str):
-        return render_template("summary.html", session_id=session_id)
 
-    app.register_blueprint(auth_bp, url_prefix="/api/auth")
-    app.register_blueprint(sessions_bp, url_prefix="/api")
-    app.register_blueprint(friends_bp, url_prefix="/api")
+    app.register_blueprint(auth_bp,      url_prefix="/api/auth")
+    app.register_blueprint(sessions_bp,  url_prefix="/api")
+    app.register_blueprint(friends_bp,   url_prefix="/api")
 
     return app

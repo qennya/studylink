@@ -1,0 +1,174 @@
+{% extends "base_app.html" %}
+
+{% block title %}My Private Room • StudyLink{% endblock %}
+
+{% block content %}
+
+<!-- Page header -->
+<section class="page-header">
+    <h1>My Private Room</h1>
+    <p class="page-date muted" id="privateRoomDate"></p>
+</section>
+
+<!-- Two-column layout -->
+<div class="private-room-grid">
+
+    <!-- Left column: profile card + active friends -->
+    <div>
+
+        <!-- Profile / StudyLink ID card -->
+        <div class="profile-card" id="profileCard">
+
+            <!-- Avatar -->
+            <div class="profile-avatar-wrap">
+                <img id="profileAvatar"
+                     class="profile-avatar"
+                     src=""
+                     alt="Profile picture"
+                     style="display:none;"
+                     onerror="this.style.display='none';
+                              document.getElementById('profileAvatarPlaceholder').style.display='flex';" />
+                <div id="profileAvatarPlaceholder" class="profile-avatar-placeholder">
+                    🎨
+                </div>
+            </div>
+
+            <!-- Info -->
+            <div class="profile-info">
+                <div class="profile-name" id="profileName">—</div>
+                <div class="profile-bio serif" id="profileBio">"..."</div>
+                <div class="profile-dots">✦ ° ✦ ° ✦ ° ✦ ° ✦</div>
+                <div class="profile-meta">
+                    <span id="profileSchoolLine" style="display:none;">School: <span id="profileSchool"></span><br></span>
+                    <span id="profileMajorLine"  style="display:none;">Major: <span id="profileMajor"></span></span>
+                </div>
+
+                <!-- Edit profile inline form (hidden by default) -->
+                <div id="editProfileForm" style="display:none; margin-top:14px;">
+                    <div class="stack" style="gap:10px;">
+                        <input id="editBio"     placeholder='Bio / quote (e.g. "Stay curious")' style="font-size:0.88rem;" />
+                        <input id="editSchool"  placeholder="School"  style="font-size:0.88rem;" />
+                        <input id="editMajor"   placeholder="Major"   style="font-size:0.88rem;" />
+                        <input id="editPfpUrl"  placeholder="Profile picture URL"  style="font-size:0.88rem;" />
+                        <div class="row" style="gap:8px; justify-content:flex-end;">
+                            <button class="btn btn-secondary"
+                                    style="font-size:0.85rem; padding:8px 16px;"
+                                    onclick="StudyLink.cancelEditProfile()">Cancel</button>
+                            <button class="btn"
+                                    style="font-size:0.85rem; padding:8px 16px;"
+                                    onclick="StudyLink.saveProfile()">Save</button>
+                        </div>
+                        <p id="editProfileMsg" class="muted small"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ··· menu button -->
+            <button class="profile-menu-btn" id="profileMenuBtn"
+                    onclick="StudyLink.toggleEditProfile()"
+                    title="Edit profile">···</button>
+
+            <!-- Card label bottom-left -->
+            <div class="profile-card-label">Studylink ID</div>
+        </div>
+
+        <!-- Active Friends panel -->
+        <div class="active-friends-panel">
+            <div class="panel-title">Active Friends</div>
+            <div id="activeFriendsList" class="stack-list"></div>
+
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="btn"
+                        style="background:var(--accent); color:var(--accent-text);"
+                        onclick="StudyLink.showAddFriendRow()">
+                    Add Friend
+                </button>
+            </div>
+
+            <!-- Add friend inline row -->
+            <div id="addFriendRow" style="display:none; margin-top:14px;">
+                <div class="row" style="gap:10px;">
+                    <input id="friendEmail"
+                           placeholder="Friend's email address"
+                           style="flex:1;"
+                           onkeydown="if(event.key==='Enter') StudyLink.addFriend()" />
+                    <button class="btn" onclick="StudyLink.addFriend()">Add</button>
+                    <button class="btn btn-secondary"
+                            onclick="StudyLink.hideAddFriendRow()">Cancel</button>
+                </div>
+                <p id="friendMsg" class="muted small" style="margin-top:8px;"></p>
+            </div>
+        </div>
+
+        <!-- Cumulative Study Stats -->
+        <div class="active-friends-panel" style="margin-top:20px;">
+            <div class="panel-title">My Study Stats</div>
+            <div id="userStatsPanel" class="stats-grid">
+                <!-- Populated by JS -->
+                <div class="stat-item">
+                    <div class="stat-value">—</div>
+                    <div class="stat-label">Sessions</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">—</div>
+                    <div class="stat-label">Total Time</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">—</div>
+                    <div class="stat-label">Status Updates</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Right column: Study Inspo -->
+    <div class="inspo-panel">
+        <div class="inspo-title">
+            Study Inspo
+            <button class="profile-menu-btn"
+                    style="position:static; font-size:1rem;"
+                    onclick="StudyLink.showInspoEditor()"
+                    title="Edit inspo images">···</button>
+        </div>
+
+        <!-- Inspo images — rendered by JS -->
+        <div class="inspo-images" id="inspoImages">
+            <div class="inspo-img"
+                 style="background:var(--border-light); display:flex;
+                        align-items:center; justify-content:center;
+                        color:var(--muted-light); font-size:0.85rem;">
+                No images yet
+            </div>
+        </div>
+
+        <!-- Inspo URL editor (hidden by default) -->
+        <div id="inspoEditor" style="display:none; margin-top:18px;">
+            <p class="muted small" style="margin-bottom:10px;">
+                Paste up to 4 image URLs, one per line:
+            </p>
+            <textarea id="inspoUrlsInput" rows="5"
+                      style="font-size:0.82rem; resize:vertical;"
+                      placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"></textarea>
+            <div class="row" style="gap:8px; justify-content:flex-end; margin-top:10px;">
+                <button class="btn btn-secondary"
+                        style="font-size:0.85rem; padding:8px 16px;"
+                        onclick="StudyLink.hideInspoEditor()">Cancel</button>
+                <button class="btn"
+                        style="font-size:0.85rem; padding:8px 16px;"
+                        onclick="StudyLink.saveInspoUrls()">Save</button>
+            </div>
+            <p id="inspoMsg" class="muted small" style="margin-top:6px;"></p>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block page_scripts %}
+<script>
+    StudyLink.initPrivateRoom();
+</script>
+{% endblock %}
