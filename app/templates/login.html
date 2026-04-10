@@ -1,23 +1,52 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Login • StudyLink</title>
     <link rel="stylesheet" href="/static/styles.css" />
 </head>
-<body>
-<div class="container">
-    <h1>Login</h1>
-    <form id="loginForm" class="card">
-        <label>Email</label>
-        <input name="email" type="email" required />
-        <label>Password</label>
-        <input name="password" type="password" required minlength="8" />
-        <button class="btn" type="submit">Login</button>
-        <p class="muted" id="msg"></p>
+<body class="auth-shell">
+
+<div class="auth-card">
+
+    <!-- Logo -->
+    <div class="auth-logo">◇StudyLink</div>
+
+    <!-- Heading -->
+    <h1>Welcome back</h1>
+    <p class="auth-subtitle">Log in to your study space.</p>
+
+    <!-- Form -->
+    <form id="loginForm">
+
+        <div class="form-group">
+            <label class="form-label" for="loginEmail">Email</label>
+            <input id="loginEmail" name="email" type="email"
+                   placeholder="you@email.com" required />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="loginPassword">Password</label>
+            <input id="loginPassword" name="password" type="password"
+                   placeholder="••••••••" required minlength="8" />
+        </div>
+
+        <p class="auth-error" id="msg"></p>
+
+        <button class="btn btn-accent" type="submit"
+                style="width:100%; margin-top:8px; font-size:0.95rem; padding:13px 22px;">
+            Log In
+        </button>
+
     </form>
-    <p class="muted">No account? <a href="/register">Register</a></p>
+
+    <p class="auth-link">
+        No account yet? <a href="/register">Create one</a>
+    </p>
+
 </div>
+
 <script src="/static/app.js"></script>
 <script>StudyLink.initLogin();</script>
 </body>

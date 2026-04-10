@@ -1,25 +1,58 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Register • StudyLink</title>
     <link rel="stylesheet" href="/static/styles.css" />
 </head>
-<body>
-<div class="container">
-    <h1>Register</h1>
-    <form id="registerForm" class="card">
-        <label>Display name</label>
-        <input name="displayName" type="text" />
-        <label>Email</label>
-        <input name="email" type="email" required />
-        <label>Password (8+ chars)</label>
-        <input name="password" type="password" required minlength="8" />
-        <button class="btn" type="submit">Create account</button>
-        <p class="muted" id="msg"></p>
+<body class="auth-shell">
+
+<div class="auth-card">
+
+    <!-- Logo -->
+    <div class="auth-logo">StudyLink◇</div>
+
+    <!-- Heading -->
+    <h1>Create your account</h1>
+    <p class="auth-subtitle">Join a space built for focused, low-pressure study.</p>
+
+    <!-- Form -->
+    <form id="registerForm">
+
+        <div class="form-group">
+            <label class="form-label" for="regName">Display name</label>
+            <input id="regName" name="displayName" type="text"
+                   placeholder="How should we call you?" />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="regEmail">Email</label>
+            <input id="regEmail" name="email" type="email"
+                   placeholder="you@email.com" required />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="regPassword">Password</label>
+            <input id="regPassword" name="password" type="password"
+                   placeholder="8+ characters" required minlength="8" />
+        </div>
+
+        <p class="auth-error" id="msg"></p>
+
+        <button class="btn btn-accent" type="submit"
+                style="width:100%; margin-top:8px; font-size:0.95rem; padding:13px 22px;">
+            Create Account
+        </button>
+
     </form>
-    <p class="muted">Already have an account? <a href="/login">Login</a></p>
+
+    <p class="auth-link">
+        Already have an account? <a href="/login">Log in</a>
+    </p>
+
 </div>
+
 <script src="/static/app.js"></script>
 <script>StudyLink.initRegister();</script>
 </body>

@@ -3,52 +3,87 @@
 {% block title %}Dashboard • StudyLink{% endblock %}
 
 {% block content %}
+
+<!-- Page header -->
 <section class="page-header">
-    <div>
-        <h1 id="dashboardGreeting">Welcome back</h1>
-        <p class="muted" id="me">Let’s have a productive study session today.</p>
-    </div>
+    <h1 id="dashboardGreeting">Hello, ...</h1>
+    <p class="page-date muted" id="dashboardDate"></p>
 </section>
 
-<section class="dashboard-grid">
-    <div class="panel panel-large">
+<!-- Top row: timer + create room -->
+<section class="dashboard-grid" style="margin-bottom: 20px;">
+
+    <!-- Focus Timer -->
+    <div class="panel dashboard-timer">
         <div class="panel-head">
             <h2>Focus Timer</h2>
             <div class="timer-mode-toggle">
                 <button id="focusModeBtn" class="pill-btn active" type="button">Focus</button>
-                <button id="breakModeBtn" class="pill-btn" type="button">Break</button>
+                <button id="breakModeBtn" class="pill-btn"        type="button">Break</button>
             </div>
         </div>
 
         <div class="timer-display" id="timerDisplay">25:00</div>
 
         <div class="timer-actions">
-            <button class="btn" type="button" id="startTimerBtn">Start</button>
-            <button class="btn btn-secondary" type="button" id="resetTimerBtn">Reset</button>
+            <button class="btn-timer" type="button" id="startTimerBtn">
+                ▷ Start
+            </button>
+            <button class="btn-timer-outline" type="button" id="resetTimerBtn">
+                ↺ Reset
+            </button>
         </div>
     </div>
 
-    <div class="panel">
+    <!-- Start a Study Room -->
+    <div class="panel dashboard-create-room">
         <div class="panel-head">
             <h2>Start a Study Room</h2>
         </div>
 
         <div class="stack">
-            <input id="sessionTitle" placeholder="e.g., CS Homework Sprint" />
-            <button class="btn" onclick="StudyLink.startSession()">Create Room</button>
+            <input id="sessionTitle" placeholder="ex. Finishing HW 3" />
+            <button class="btn btn-outline" style="background: var(--card-blue-bg); border-color: var(--card-blue-border); color: var(--text);"
+                    onclick="StudyLink.startSession()">
+                Create Room
+            </button>
         </div>
     </div>
 
-    <div class="panel">
-        <div class="panel-head">
-            <h2>Friends Studying Right Now</h2>
-        </div>
-
-        <div id="activeSessions" class="stack-list"></div>
-        <p class="muted small">Auto-refreshes every 10 seconds.</p>
-    </div>
 </section>
+
+<!-- Today's Tasks -->
+<div class="panel dashboard-tasks">
+    <div class="tasks-title">
+        Today's Tasks ◇
+    </div>
+
+    <div id="taskList"></div>
+
+    <div style="margin-top: 18px; text-align: center;">
+        <button class="btn" id="addTaskBtn"
+                style="background: var(--accent); color: var(--accent-text);">
+            + Add a Task
+        </button>
+    </div>
+
+    <!-- Hidden add-task input row, shown when + is clicked -->
+    <div id="addTaskRow" style="display:none; margin-top: 14px; display:none;">
+        <div class="row" style="gap:10px;">
+            <input id="newTaskInput"
+                   placeholder="What do you need to do?"
+                   style="flex:1;"
+                   onkeydown="if(event.key==='Enter') StudyLink.addTask()" />
+            <button class="btn" style="white-space:nowrap;"
+                    onclick="StudyLink.addTask()">Add</button>
+            <button class="btn btn-secondary"
+                    onclick="StudyLink.cancelAddTask()">Cancel</button>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
+
 
 {% block page_scripts %}
 <script>

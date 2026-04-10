@@ -1,45 +1,71 @@
-<!doctype html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title>Session • StudyLink</title>
-    <link rel="stylesheet" href="/static/styles.css" />
-</head>
-<body>
-<div class="container">
-    <div class="row space">
-        <h1 id="title">Session</h1>
-        <a class="btn secondary" href="/dashboard">Back</a>
+{% extends "base_app.html" %}
+
+{% block title %}Session • StudyLink{% endblock %}
+
+{% block content %}
+
+<!-- Back header -->
+<section class="page-header">
+    <a href="/study-rooms" class="session-back">
+        &lt; <span id="sessionTitle" style="font-family:var(--font-display); font-style:italic;">Study Room</span>
+    </a>
+</section>
+
+<!-- Two-column layout: participants + status feed -->
+<div class="session-layout">
+
+    <!-- Left: participant cards + status picker -->
+    <div>
+        <!-- Participant cards — rendered by JS -->
+        <div id="participantsGrid" class="participants-grid"></div>
+
+        <!-- Status update picker (always visible) -->
+        <div class="status-picker" id="statusPicker">
+            <div class="status-picker-title">Update your Status</div>
+
+            <div class="status-options-grid" id="statusOptionsGrid">
+                <button class="status-option" data-status="Taking a break">Taking a break</button>
+                <button class="status-option" data-status="Deep Focus Mode">Deep Focus Mode</button>
+                <button class="status-option" data-status="Listening to music">Listening to music</button>
+                <button class="status-option" data-status="Low on energy">Low on energy</button>
+                <button class="status-option" data-status="Light Focus Mode">Light Focus Mode</button>
+                <button class="status-option" data-status="Completed a task">Completed a task</button>
+                <button class="status-option" data-status="Finishing up">Finishing up</button>
+                <button class="status-option" data-status="Reading Notes">Reading Notes</button>
+                <input  class="status-option" id="customStatusInput"
+                        placeholder="Custom...."
+                        style="cursor:text;"
+                        oninput="StudyLink.selectCustomStatus(this.value)" />
+            </div>
+
+            <div class="row" style="gap:12px; margin-top:4px;">
+                <button class="btn" style="background:var(--accent); color:var(--accent-text);"
+                        onclick="StudyLink.submitStatus()">
+                    Update
+                </button>
+                <!-- Owner-only end session -->
+                <button class="btn btn-secondary" id="endSessionBtn"
+                        style="display:none;"
+                        onclick="StudyLink.endSession()">
+                    End Session
+                </button>
+            </div>
+        </div>
     </div>
 
-    <div class="card">
-        <p class="muted">Session ID: <span id="sid"></span></p>
-        <div class="row">
-            <select id="statusSelect">
-                <option value="Deep focus">Deep focus</option>
-                <option value="Light focus">Light focus</option>
-                <option value="On a break">On a break</option>
-                <option value="Need water">Need water</option>
-                <option value="Done for now">Done for now</option>
-            </select>
-            <button class="btn" onclick="StudyLink.setStatus()">Set status</button>
-        </div>
-        <div class="row">
-            <button class="btn secondary" onclick="StudyLink.joinSession()">Join silently</button>
-            <button class="btn danger" onclick="StudyLink.endSession()">End session (owner)</button>
-        </div>
-        <p class="muted" id="sessionMeta"></p>
+    <!-- Right: status feed -->
+    <div class="status-feed">
+        <div class="status-feed-title">Status Feeds</div>
+        <div id="statusFeed"></div>
     </div>
 
-    <div class="card">
-        <h2>Recent updates</h2>
-        <div id="events" class="list"></div>
-    </div>
 </div>
 
-<script src="/static/app.js"></script>
+{% endblock %}
+
+
+{% block page_scripts %}
 <script>
     StudyLink.initSession("{{ session_id }}");
 </script>
-</body>
-</html>
+{% endblock %}
