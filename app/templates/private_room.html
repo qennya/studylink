@@ -13,7 +13,7 @@
 <!-- Two-column layout -->
 <div class="private-room-grid">
 
-    <!-- Left column: profile card + active friends -->
+    <!-- Left column: profile card + stats + friends -->
     <div>
 
         <!-- Profile / StudyLink ID card -->
@@ -46,10 +46,10 @@
                 <!-- Edit profile inline form (hidden by default) -->
                 <div id="editProfileForm" style="display:none; margin-top:14px;">
                     <div class="stack" style="gap:10px;">
-                        <input id="editBio"     placeholder='Bio / quote (e.g. "Stay curious")' style="font-size:0.88rem;" />
-                        <input id="editSchool"  placeholder="School"  style="font-size:0.88rem;" />
-                        <input id="editMajor"   placeholder="Major"   style="font-size:0.88rem;" />
-                        <input id="editPfpUrl"  placeholder="Profile picture URL"  style="font-size:0.88rem;" />
+                        <input id="editBio"    placeholder='Bio / quote (e.g. "Stay curious")' style="font-size:0.88rem;" />
+                        <input id="editSchool" placeholder="School" style="font-size:0.88rem;" />
+                        <input id="editMajor"  placeholder="Major"  style="font-size:0.88rem;" />
+                        <input id="editPfpUrl" placeholder="Profile picture URL" style="font-size:0.88rem;" />
                         <div class="row" style="gap:8px; justify-content:flex-end;">
                             <button class="btn btn-secondary"
                                     style="font-size:0.85rem; padding:8px 16px;"
@@ -63,7 +63,7 @@
                 </div>
             </div>
 
-            <!-- ··· menu button -->
+            <!-- menu button -->
             <button class="profile-menu-btn" id="profileMenuBtn"
                     onclick="StudyLink.toggleEditProfile()"
                     title="Edit profile">···</button>
@@ -72,12 +72,31 @@
             <div class="profile-card-label">Studylink ID</div>
         </div>
 
-        <!-- Active Friends panel -->
-        <div class="active-friends-panel">
+        <!-- My Study Stats -->
+        <div class="active-friends-panel" style="margin-top:20px;">
+            <div class="panel-title">My Study Stats</div>
+            <div id="userStatsPanel" class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">—</div>
+                    <div class="stat-label">Sessions</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">—</div>
+                    <div class="stat-label">Total Time</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">—</div>
+                    <div class="stat-label">Status Updates</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Friends -->
+        <div class="active-friends-panel" style="margin-top:20px;">
             <div class="panel-title">Active Friends</div>
             <div id="activeFriendsList" class="stack-list"></div>
 
-            <div style="margin-top: 20px; text-align: center;">
+            <div style="margin-top:20px; text-align:center;">
                 <button class="btn"
                         style="background:var(--accent); color:var(--accent-text);"
                         onclick="StudyLink.showAddFriendRow()">
@@ -100,26 +119,6 @@
             </div>
         </div>
 
-        <!-- Cumulative Study Stats -->
-        <div class="active-friends-panel" style="margin-top:20px;">
-            <div class="panel-title">My Study Stats</div>
-            <div id="userStatsPanel" class="stats-grid">
-                <!-- Populated by JS -->
-                <div class="stat-item">
-                    <div class="stat-value">—</div>
-                    <div class="stat-label">Sessions</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">—</div>
-                    <div class="stat-label">Total Time</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">—</div>
-                    <div class="stat-label">Status Updates</div>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <!-- Right column: Study Inspo -->
@@ -132,7 +131,6 @@
                     title="Edit inspo images">···</button>
         </div>
 
-        <!-- Inspo images — rendered by JS -->
         <div class="inspo-images" id="inspoImages">
             <div class="inspo-img"
                  style="background:var(--border-light); display:flex;

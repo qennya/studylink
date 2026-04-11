@@ -18,6 +18,10 @@
 
         <!-- Nav -->
         <nav class="sidebar-nav">
+            <a href="/private-room"
+               class="nav-link {% if active_page == 'private_room' %}active{% endif %}">
+                My Private Room
+            </a>
             <a href="/dashboard"
                class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">
                 Dashboard
@@ -25,10 +29,6 @@
             <a href="/study-rooms"
                class="nav-link {% if active_page == 'study_rooms' %}active{% endif %}">
                 Study Rooms
-            </a>
-            <a href="/private-room"
-               class="nav-link {% if active_page == 'private_room' %}active{% endif %}">
-                My Private Room
             </a>
         </nav>
 

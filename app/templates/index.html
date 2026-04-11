@@ -101,13 +101,14 @@
 
         /* ── Hero ──────────────────────────────────────────────── */
         .hero {
-            min-height: 100vh;
+            height: calc(100vh - 80px); /* 80px = marquee peek amount */
+            min-height: 500px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 120px 24px 60px;
+            padding: 80px 24px 0px;
             position: relative;
             overflow: hidden;
         }
@@ -181,7 +182,7 @@
         .marquee-section {
             width: 100%;
             overflow: hidden;
-            padding: 56px 0;
+            padding: 0 0 40px;
             position: relative;
         }
 
@@ -501,7 +502,7 @@
 <section class="hero">
     <div class="hero-content">
         <h1 class="hero-title">
-            ☆°｡ StudyLink°｡☆
+            ☆°｡StudyLink ☆°｡
         </h1>
         <p class="hero-sub">
             Built for low social battery students who still want connection.
@@ -521,10 +522,9 @@
 
 <!-- ── Middle: copy + status feed ──────────────────────────── -->
 <section class="middle" id="how-it-works">
+
     <div class="middle-text fade-in">
-        <div class="hero-title">Study together, without the pressure.</div>
-
-
+        <div class="hero-title"> Study together, without the pressure.</div>
         <p>
             Whether you're grinding assignments,
             using a focus timer, or just need a shared
@@ -555,11 +555,11 @@
 
         <div class="feed-mock-item">
             <img class="feed-mock-avatar" src="https://i.pinimg.com/736x/59/a2/82/59a282c468ba6a5b593a1d20b7a90178.jpg"
-                 alt="Hinata"
+                 alt="Gojo"
                  onerror="this.style.display='none';this.nextElementSibling.style.display='grid';" />
             <div class="feed-mock-avatar" style="background:#dff5db;display:grid;place-items:center;font-size:1.1rem;">🔥</div>
             <div>
-                <div><span class="feed-mock-name">Hinata!!!</span><span class="feed-mock-time">3:28 PM</span></div>
+                <div><span class="feed-mock-name">Gojo!!!</span><span class="feed-mock-time">3:28 PM</span></div>
                 <div class="feed-mock-status">Listening to music</div>
             </div>
         </div>
