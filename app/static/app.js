@@ -388,7 +388,7 @@ const StudyLink = (() => {
                     })
                 });
                 setToken(data.token);
-                window.location.href = "/dashboard";
+                window.location.href = "/private-room";
             } catch (err) {
                 msg.textContent = err.message;
             }
