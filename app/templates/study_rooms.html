@@ -18,11 +18,23 @@
 
 <!-- Create Room inline panel (hidden until button clicked) -->
 <div id="createRoomPanel" style="display:none; margin-bottom:20px;">
-    <div class="panel" style="max-width: 480px;">
-        <h2 style="margin-bottom:14px;">New Study Room</h2>
+    <div class="panel" style="max-width: 520px;">
+        <h2 style="margin-bottom:16px;">New Study Room</h2>
         <div class="stack">
-            <input id="sessionTitle"    placeholder="Room title  (ex. Finishing HW 3)" />
-            <input id="sessionCoverUrl" placeholder="Cover image URL  (optional)" />
+            <div>
+                <label style="font-size:0.85rem; font-weight:500; display:block; margin-bottom:6px;">Room title</label>
+                <input id="sessionTitle" placeholder="ex. Finishing HW 3" />
+            </div>
+            <div>
+                <label style="font-size:0.85rem; font-weight:500; display:block; margin-bottom:6px;">Cover image URL <span class="muted" style="font-weight:400;">(optional)</span></label>
+                <input id="sessionCoverUrl" placeholder="https://..." />
+            </div>
+            <div>
+                <label style="font-size:0.85rem; font-weight:500; display:block; margin-bottom:6px;">Description <span class="muted" style="font-weight:400;">(optional)</span></label>
+                <textarea id="sessionDescription" rows="2"
+                          placeholder="What are you studying? Any notes for participants..."
+                          style="resize:none; font-size:0.88rem;"></textarea>
+            </div>
             <div class="row" style="justify-content:flex-end; gap:10px;">
                 <button class="btn btn-secondary"
                         onclick="StudyLink.cancelCreateRoom()">Cancel</button>

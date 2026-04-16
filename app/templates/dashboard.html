@@ -42,8 +42,13 @@
         </div>
 
         <div class="stack">
-            <input id="sessionTitle" placeholder="ex. Finishing HW 3" />
-            <button class="btn btn-outline" style="background: var(--card-blue-bg); border-color: var(--card-blue-border); color: var(--text);"
+            <input id="sessionTitle"       placeholder="Room title  (ex. Finishing HW 3)" />
+            <input id="sessionCoverUrl"    placeholder="Cover image URL  (optional)" />
+            <textarea id="sessionDescription" rows="2"
+                      placeholder="Description  (optional)"
+                      style="resize:none; font-size:0.88rem;"></textarea>
+            <button class="btn btn-outline"
+                    style="background:var(--card-blue-bg); border-color:var(--card-blue-border); color:var(--text);"
                     onclick="StudyLink.startSession()">
                 Create Room
             </button>
@@ -67,8 +72,8 @@
         </button>
     </div>
 
-    <!-- Hidden add-task input row, shown when + is clicked -->
-    <div id="addTaskRow" style="display:none; margin-top: 14px; display:none;">
+    <!-- Hidden add-task input row -->
+    <div id="addTaskRow" style="display:none; margin-top: 14px;">
         <div class="row" style="gap:10px;">
             <input id="newTaskInput"
                    placeholder="What do you need to do?"

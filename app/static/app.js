@@ -1,11 +1,52 @@
 const StudyLink = (() => {
     const tokenKey = "studylink_token";
 
-    // ── Timer state ───────────────────────────────────────────
+    // ── Timer state (persisted across pages via localStorage) ──
+    const TIMER_KEY = "studylink_timer";
+
+    // Default focus duration in minutes — editable by user
+    function getDefaultFocusMinutes() {
+        return parseInt(localStorage.getItem("studylink_focus_default") || "25", 10);
+    }
+    function setDefaultFocusMinutes(mins) {
+        localStorage.setItem("studylink_focus_default", String(mins));
+    }
+
+    function saveTimerState() {
+        localStorage.setItem(TIMER_KEY, JSON.stringify({
+            mode:      timerState.mode,
+            seconds:   timerState.seconds,
+            running:   timerState.running,
+            savedAt:   timerState.running ? Date.now() : null,
+        }));
+    }
+
+    function loadTimerState() {
+        try {
+            const raw = localStorage.getItem(TIMER_KEY);
+            if (!raw) return null;
+            const s = JSON.parse(raw);
+            // If timer was running, calculate elapsed since page left
+            if (s.running && s.savedAt) {
+                const elapsed = Math.floor((Date.now() - s.savedAt) / 1000);
+                s.seconds = Math.max(0, s.seconds - elapsed);
+                if (s.seconds === 0) s.running = false;
+            }
+            return s;
+        } catch (_) { return null; }
+    }
+
+    function clearTimerState() {
+        localStorage.removeItem(TIMER_KEY);
+    }
+
+    // In-memory mirror of current timer state
+    const timerState = {
+        mode:     "focus",
+        seconds:  getDefaultFocusMinutes() * 60,
+        running:  false,
+    };
     let timerInterval = null;
-    let timerMode     = "focus";
-    let timerSeconds  = 25 * 60;
-    let timerRunning  = false;
 
     // ── Tasks state (localStorage, keyed per user) ────────────
     // Format: [{ id, text, done }]
@@ -64,73 +105,199 @@ const StudyLink = (() => {
     }
 
     function updateTimerDisplay() {
+        // Update dashboard display
         const display = document.getElementById("timerDisplay");
-        if (display) display.textContent = formatTime(timerSeconds);
+        if (display) display.textContent = formatTime(timerState.seconds);
+        // Update floating widget display
+        const widgetDisplay = document.getElementById("floatTimerDisplay");
+        if (widgetDisplay) widgetDisplay.textContent = formatTime(timerState.seconds);
+        // Update browser tab title when running
+        if (timerState.running) {
+            document.title = `${formatTime(timerState.seconds)} — StudyLink`;
+        }
+    }
+
+    function syncDashboardUI() {
+        const focusBtn = document.getElementById("focusModeBtn");
+        const breakBtn = document.getElementById("breakModeBtn");
+        const startBtn = document.getElementById("startTimerBtn");
+        if (focusBtn && breakBtn) {
+            focusBtn.classList.toggle("active", timerState.mode === "focus");
+            breakBtn.classList.toggle("active", timerState.mode === "break");
+        }
+        if (startBtn) {
+            startBtn.textContent = timerState.running ? "⏸ Pause" : "▷ Start";
+        }
+        updateTimerDisplay();
+    }
+
+    function syncWidgetUI() {
+        const widget    = document.getElementById("floatTimer");
+        const pauseBtn  = document.getElementById("floatPauseBtn");
+        if (!widget) return;
+        widget.style.display = timerState.running ? "flex" : "none";
+        if (pauseBtn) pauseBtn.textContent = timerState.running ? "⏸" : "▷";
     }
 
     function setTimerMode(mode) {
-        timerMode    = mode;
-        timerSeconds = mode === "focus" ? 25 * 60 : 5 * 60;
-        timerRunning = false;
+        timerState.mode    = mode;
+        timerState.seconds = mode === "focus"
+            ? getDefaultFocusMinutes() * 60
+            : 5 * 60;
+        timerState.running = false;
         clearInterval(timerInterval);
         timerInterval = null;
-        updateTimerDisplay();
-
-        const focusBtn = document.getElementById("focusModeBtn");
-        const breakBtn = document.getElementById("breakModeBtn");
-        if (focusBtn && breakBtn) {
-            focusBtn.classList.toggle("active", mode === "focus");
-            breakBtn.classList.toggle("active", mode === "break");
-        }
-
-        const startBtn = document.getElementById("startTimerBtn");
-        if (startBtn) startBtn.textContent = "▷ Start";
+        saveTimerState();
+        syncDashboardUI();
+        syncWidgetUI();
     }
 
-    function toggleTimer() {
-        const startBtn = document.getElementById("startTimerBtn");
-        if (!startBtn) return;
-
-        if (timerRunning) {
-            timerRunning = false;
-            clearInterval(timerInterval);
-            timerInterval = null;
-            startBtn.textContent = "▷ Start";
-            return;
-        }
-
-        timerRunning = true;
-        startBtn.textContent = "⏸ Pause";
-
+    function startTimerTick() {
+        clearInterval(timerInterval);
         timerInterval = setInterval(() => {
-            if (timerSeconds > 0) {
-                timerSeconds -= 1;
+            if (timerState.seconds > 0) {
+                timerState.seconds -= 1;
+                saveTimerState();
                 updateTimerDisplay();
             } else {
                 clearInterval(timerInterval);
-                timerInterval  = null;
-                timerRunning   = false;
-                startBtn.textContent = "▷ Start";
-                alert(timerMode === "focus" ? "Focus session complete! Take a break." : "Break's over — back to work!");
+                timerInterval      = null;
+                timerState.running = false;
+                saveTimerState();
+                syncDashboardUI();
+                syncWidgetUI();
+                // Restore tab title
+                document.title = "StudyLink";
+                // Notify
+                if (Notification && Notification.permission === "granted") {
+                    new Notification("StudyLink", {
+                        body: timerState.mode === "focus"
+                            ? "Focus session complete! Take a break."
+                            : "Break's over — back to work!",
+                        icon: "/static/favicon.ico",
+                    });
+                } else {
+                    alert(timerState.mode === "focus"
+                        ? "Focus session complete! Take a break."
+                        : "Break's over — back to work!");
+                }
             }
         }, 1000);
     }
 
-    function resetTimer() { setTimerMode(timerMode); }
+    function toggleTimer() {
+        if (timerState.running) {
+            timerState.running = false;
+            clearInterval(timerInterval);
+            timerInterval = null;
+        } else {
+            timerState.running = true;
+            startTimerTick();
+            // Request notification permission on first start
+            if (Notification && Notification.permission === "default") {
+                Notification.requestPermission();
+            }
+        }
+        saveTimerState();
+        syncDashboardUI();
+        syncWidgetUI();
+    }
+
+    function resetTimer() {
+        setTimerMode(timerState.mode);
+    }
 
     function setupTimer() {
+        // Load persisted state first
+        const saved = loadTimerState();
+        if (saved) {
+            timerState.mode    = saved.mode;
+            timerState.seconds = saved.seconds;
+            timerState.running = saved.running;
+        }
+
+        // Wire dashboard buttons if we're on dashboard
         const focusBtn = document.getElementById("focusModeBtn");
         const breakBtn = document.getElementById("breakModeBtn");
         const startBtn = document.getElementById("startTimerBtn");
         const resetBtn = document.getElementById("resetTimerBtn");
-        if (!focusBtn || !breakBtn || !startBtn || !resetBtn) return;
 
-        focusBtn.addEventListener("click", () => setTimerMode("focus"));
-        breakBtn.addEventListener("click", () => setTimerMode("break"));
-        startBtn.addEventListener("click", toggleTimer);
-        resetBtn.addEventListener("click", resetTimer);
+        if (focusBtn) focusBtn.addEventListener("click", () => setTimerMode("focus"));
+        if (breakBtn) breakBtn.addEventListener("click", () => setTimerMode("break"));
+        if (startBtn) startBtn.addEventListener("click", toggleTimer);
+        if (resetBtn) resetBtn.addEventListener("click", resetTimer);
 
-        setTimerMode("focus");
+        // Editable timer — click the display to set a custom duration
+        const display = document.getElementById("timerDisplay");
+        if (display) {
+            display.style.cursor = "text";
+            display.title = "Click to set custom duration";
+            display.addEventListener("click", () => {
+                if (timerState.running) return; // don't edit while running
+                const current = Math.round(timerState.seconds / 60);
+                const input = prompt(`Set timer duration (minutes). Default is ${getDefaultFocusMinutes()}min:`, current);
+                if (input === null) return;
+                const mins = parseInt(input, 10);
+                if (isNaN(mins) || mins < 1 || mins > 999) return;
+                // Save as new default for focus mode
+                if (timerState.mode === "focus") setDefaultFocusMinutes(mins);
+                timerState.seconds = mins * 60;
+                saveTimerState();
+                updateTimerDisplay();
+            });
+        }
+
+        // Resume ticking if was running
+        if (timerState.running) startTimerTick();
+
+        syncDashboardUI();
+    }
+
+    // Called on every page from base_app.html to init floating widget
+    function initFloatingTimer() {
+        const saved = loadTimerState();
+        if (saved) {
+            timerState.mode    = saved.mode;
+            timerState.seconds = saved.seconds;
+            timerState.running = saved.running;
+        }
+
+        const widget = document.getElementById("floatTimer");
+        if (!widget) return;
+
+        // Show widget only when timer is running
+        widget.style.display = timerState.running ? "flex" : "none";
+        updateTimerDisplay();
+
+        // Resume ticking if it was running
+        if (timerState.running) startTimerTick();
+
+        // Wire widget buttons
+        const pauseBtn = document.getElementById("floatPauseBtn");
+        const closeBtn = document.getElementById("floatCloseBtn");
+
+        if (pauseBtn) {
+            pauseBtn.textContent = timerState.running ? "⏸" : "▷";
+            pauseBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                toggleTimer();
+            });
+        }
+
+        if (closeBtn) {
+            closeBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                // Stop and clear the timer
+                clearInterval(timerInterval);
+                timerInterval      = null;
+                timerState.running = false;
+                timerState.seconds = getDefaultFocusMinutes() * 60;
+                clearTimerState();
+                syncDashboardUI();
+                widget.style.display = "none";
+                document.title = "StudyLink";
+            });
+        }
     }
 
     // ── Tasks ─────────────────────────────────────────────────
@@ -364,7 +531,7 @@ const StudyLink = (() => {
                     })
                 });
                 setToken(data.token);
-                window.location.href = "/dashboard";
+                window.location.href = "/private-room";
             } catch (err) {
                 msg.textContent = err.message;
             }
@@ -388,7 +555,7 @@ const StudyLink = (() => {
                     })
                 });
                 setToken(data.token);
-                window.location.href = "/dashboard";
+                window.location.href = "/private-room";
             } catch (err) {
                 msg.textContent = err.message;
             }
@@ -545,7 +712,7 @@ const StudyLink = (() => {
 
                 el.innerHTML = `
                     ${avatarHtml}
-                    <div class="friend-info">
+                    <div class="friend-info" style="flex:1;min-width:0;">
                         <div class="friend-name">
                             ${escapeHtml(friend.displayName || "Friend")}
                             ${statusBadge}
@@ -558,6 +725,11 @@ const StudyLink = (() => {
                     : ""}
                     </div>
                 `;
+
+                // Make the whole card clickable to view their profile
+                el.style.cursor = "pointer";
+                el.title = `View ${friend.displayName || "friend"}'s room`;
+                el.addEventListener("click", () => StudyLink.showFriendProfile(friend.id));
                 list.appendChild(el);
             });
 
@@ -801,13 +973,15 @@ const StudyLink = (() => {
 
     async function startSession() {
         requireLogin();
-        const titleEl    = document.getElementById("sessionTitle");
-        const coverEl    = document.getElementById("sessionCoverUrl");
-        const title      = titleEl && titleEl.value.trim() ? titleEl.value.trim() : "Study Session";
-        const coverImage = coverEl ? coverEl.value.trim() : "";
-        const data       = await apiFetch("/api/sessions", {
+        const titleEl     = document.getElementById("sessionTitle");
+        const coverEl     = document.getElementById("sessionCoverUrl");
+        const descEl      = document.getElementById("sessionDescription");
+        const title       = titleEl && titleEl.value.trim() ? titleEl.value.trim() : "Study Session";
+        const coverImage  = coverEl ? coverEl.value.trim()  : "";
+        const description = descEl  ? descEl.value.trim()   : "";
+        const data        = await apiFetch("/api/sessions", {
             method: "POST",
-            body: JSON.stringify({ title, coverImage })
+            body: JSON.stringify({ title, coverImage, description })
         });
         window.location.href = `/session/${data.sessionId}`;
     }
@@ -884,10 +1058,7 @@ const StudyLink = (() => {
                                 <div class="participant-role">${isOwner ? "Owner" : "Participant"}</div>
                             </div>
                         </div>
-                        ${isMe ? `<button class="btn-update-status"
-                                          onclick="document.getElementById('statusPicker').scrollIntoView({behavior:'smooth'})">
-                                      Update Status
-                                  </button>` : ""}
+
                     </div>
                     <div class="participant-status">
                         ${statusIcon}
@@ -898,11 +1069,14 @@ const StudyLink = (() => {
             });
 
             // Show End Session button only for the owner
-            const endBtn = document.getElementById("endSessionBtn");
+            const endBtn  = document.getElementById("endSessionBtn");
+            const editBtn = document.getElementById("editRoomBtn");
+            const iAmOwner = participants.some(p => p.id === currentUserId && p.isOwner);
             if (endBtn) {
-                const iAmOwner = participants.some(p => p.id === currentUserId && p.isOwner);
-                endBtn.style.display = iAmOwner ? "inline-flex" : "none";
+                endBtn.style.display = "inline-flex";
+                endBtn.textContent   = iAmOwner ? "End Session" : "Leave Session";
             }
+            if (editBtn) editBtn.style.display = iAmOwner ? "inline-flex" : "none";
         }
 
         function renderStatusFeed(events, participants) {
@@ -976,6 +1150,21 @@ const StudyLink = (() => {
                 const titleEl = document.getElementById("sessionTitle");
                 if (titleEl) titleEl.textContent = data.session.title || "Study Room";
 
+                // Store for edit panel pre-fill
+                if (window.StudyLinkSession) {
+                    window.StudyLinkSession.roomData = {
+                        coverImage:  data.session.coverImage  || "",
+                        description: data.session.description || "",
+                    };
+                }
+
+                // Render description if present
+                const descEl = document.getElementById("roomDescription");
+                if (descEl) {
+                    descEl.textContent   = data.session.description || "";
+                    descEl.style.display = data.session.description ? "block" : "none";
+                }
+
                 // Redirect if session ended and we're not the owner
                 if (!data.session.active) {
                     // Room ended — show modal if we have summary data, else go to study rooms
@@ -985,6 +1174,7 @@ const StudyLink = (() => {
 
                 renderParticipants(data.participants || []);
                 renderStatusFeed(data.events || [], data.participants || []);
+                renderRoomPreview(data.session, data.participants || []);
 
             } catch (err) {
                 console.error("Session refresh failed:", err);
@@ -1218,10 +1408,284 @@ const StudyLink = (() => {
         });
     }
 
+
+    function showEditRoomPanel() {
+        const panel = document.getElementById("editRoomPanel");
+        if (!panel) return;
+        panel.style.display = "block";
+        const titleEl = document.getElementById("editRoomTitle");
+        const coverEl = document.getElementById("editRoomCover");
+        const descEl  = document.getElementById("editRoomDesc");
+        const currentTitle = document.getElementById("sessionTitle");
+        if (titleEl && currentTitle) titleEl.value = currentTitle.textContent.trim();
+        if (window.StudyLinkSession && window.StudyLinkSession.roomData) {
+            const d = window.StudyLinkSession.roomData;
+            if (coverEl) coverEl.value = d.coverImage  || "";
+            if (descEl)  descEl.value  = d.description || "";
+        }
+    }
+
+    function hideEditRoomPanel() {
+        const panel = document.getElementById("editRoomPanel");
+        if (panel) panel.style.display = "none";
+        const msg = document.getElementById("editRoomMsg");
+        if (msg) msg.textContent = "";
+    }
+
+    async function saveRoomEdit() {
+        if (!window.StudyLinkSession) return;
+        const { sessionId, refresh } = window.StudyLinkSession;
+        const titleEl = document.getElementById("editRoomTitle");
+        const coverEl = document.getElementById("editRoomCover");
+        const descEl  = document.getElementById("editRoomDesc");
+        const msg     = document.getElementById("editRoomMsg");
+        const payload = {
+            title:       titleEl ? titleEl.value.trim() : undefined,
+            coverImage:  coverEl ? coverEl.value.trim() : undefined,
+            description: descEl  ? descEl.value.trim()  : undefined,
+        };
+        try {
+            await apiFetch(`/api/sessions/${sessionId}`, {
+                method: "PATCH",
+                body: JSON.stringify(payload),
+            });
+            hideEditRoomPanel();
+            await refresh();
+        } catch (err) {
+            if (msg) msg.textContent = err.message || "Could not save.";
+        }
+    }
+
+
+    function renderRoomPreview(session, participants) {
+        // Image
+        const imgWrap = document.getElementById("roomPreviewImgWrap");
+        if (imgWrap) {
+            if (session.coverImage) {
+                imgWrap.innerHTML = `
+                    <img class="room-preview-img"
+                         src="${session.coverImage}"
+                         alt="${escapeHtml(session.title || "")}"
+                         onerror="this.style.display='none';
+                                  this.nextElementSibling.style.display='flex';" />
+                    <div class="room-preview-img-placeholder" style="display:none;">📚</div>`;
+            } else {
+                imgWrap.innerHTML = `<div class="room-preview-img-placeholder">📚</div>`;
+            }
+        }
+
+        // Title
+        const titleEl = document.getElementById("roomPreviewTitle");
+        if (titleEl) titleEl.textContent = session.title || "Study Room";
+
+        // Description
+        const descEl = document.getElementById("roomPreviewDesc");
+        if (descEl) {
+            if (session.description) {
+                descEl.textContent   = session.description;
+                descEl.style.display = "block";
+            } else {
+                descEl.style.display = "none";
+            }
+        }
+
+        // Participant count with live green dot
+        const countEl = document.getElementById("roomPreviewCount");
+        if (countEl) {
+            const n = participants ? participants.length : 0;
+            countEl.textContent = `${n} participant${n !== 1 ? "s" : ""}`;
+        }
+    }
+
+
+    async function showFriendProfile(friendId) {
+        try {
+            const data    = await apiFetch(`/api/auth/friends/${friendId}/profile`);
+            const profile = data.profile;
+            renderFriendModal(profile);
+        } catch (err) {
+            console.error("Could not load friend profile:", err);
+        }
+    }
+
+    function renderFriendModal(p) {
+        const existing = document.getElementById("friendProfileModal");
+        if (existing) existing.remove();
+
+        const avatarHtml = p.pfp_url
+            ? `<img src="${p.pfp_url}" alt="${escapeHtml(p.displayName)}"
+                    style="width:160px;height:190px;object-fit:cover;
+                           border-radius:var(--radius-md);border:2px solid #1a1a1a;
+                           flex-shrink:0;" />`
+            : `<div style="width:160px;height:190px;border-radius:var(--radius-md);
+                           border:2px solid #1a1a1a;background:#f0f0f0;
+                           display:flex;align-items:center;justify-content:center;
+                           font-size:3rem;flex-shrink:0;">🎨</div>`;
+
+        const bioHtml = p.bio
+            ? `<div style="font-family:var(--font-display);font-style:italic;
+                          color:#888;font-size:0.92rem;margin-bottom:8px;">
+                   "${escapeHtml(p.bio)}"
+               </div>
+               <div style="letter-spacing:4px;color:#ccc;font-size:0.65rem;margin-bottom:12px;">
+                   ✦ ° ✦ ° ✦ ° ✦ ° ✦
+               </div>` : "";
+
+        const metaHtml = [
+            p.school ? `School: ${escapeHtml(p.school)}` : "",
+            p.major  ? `Major: ${escapeHtml(p.major)}`   : "",
+        ].filter(Boolean).join("<br>");
+
+        // Inspo images — up to 3 shown in the modal
+        const inspoHtml = (p.inspo_urls && p.inspo_urls.length)
+            ? p.inspo_urls.slice(0, 3).map(url => `
+                <img src="${url}" alt="Study inspo"
+                     style="width:100%;height:130px;object-fit:cover;
+                            border-radius:var(--radius-md);display:block;
+                            margin-bottom:10px;"
+                     onerror="this.style.display='none';" />`
+            ).join("")
+            : `<p style="color:var(--muted);font-size:0.85rem;">No study inspo yet.</p>`;
+
+        const s = p.stats || {};
+
+        const overlay = document.createElement("div");
+        overlay.id = "friendProfileModal";
+        overlay.style.cssText = `
+            position:fixed;inset:0;z-index:1000;
+            background:rgba(0,0,0,0.35);
+            display:flex;align-items:center;justify-content:center;
+            padding:24px;
+        `;
+
+        overlay.innerHTML = `
+            <div style="
+                background:#fff;border:2px solid #1a1a1a;
+                border-radius:var(--radius-xl);
+                padding:36px 40px;
+                width:100%;max-width:860px;
+                max-height:88vh;overflow-y:auto;
+                display:grid;
+                grid-template-columns:1fr 340px;
+                gap:32px;
+                align-items:start;
+            ">
+                <!-- Left column: profile card + stats -->
+                <div>
+                    <!-- Profile card -->
+                    <div style="border:2px solid #1a1a1a;border-radius:var(--radius-xl);
+                                padding:24px;margin-bottom:20px;position:relative;">
+                        <div style="display:flex;gap:20px;align-items:flex-start;margin-bottom:32px;">
+                            ${avatarHtml}
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-family:var(--font-display);font-style:italic;
+                                            font-size:1.8rem;font-weight:400;margin-bottom:6px;">
+                                    ${escapeHtml(p.displayName || "Friend")}
+                                </div>
+                                ${bioHtml}
+                                <div style="font-size:0.88rem;line-height:1.8;
+                                            font-family:'Courier New',monospace;color:#1a1a1a;">
+                                    ${metaHtml}
+                                </div>
+                            </div>
+                        </div>
+                        <div style="font-family:var(--font-display);font-style:italic;
+                                    font-size:1rem;color:var(--text);">
+                            Studylink ID
+                        </div>
+                    </div>
+
+                    <!-- Stats -->
+                    <div style="border:2px solid #1a1a1a;border-radius:var(--radius-xl);padding:20px;">
+                        <div style="font-size:0.88rem;font-weight:500;
+                                    color:var(--text);margin-bottom:14px;">
+                            My Study Stats
+                        </div>
+                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+                            <div style="text-align:center;padding:14px 8px;
+                                        border:2px solid #1a1a1a;border-radius:var(--radius-md);">
+                                <div style="font-family:var(--font-display);font-size:1.3rem;">
+                                    ${s.totalSessions || 0}
+                                </div>
+                                <div style="font-size:0.72rem;color:var(--muted);
+                                            text-transform:uppercase;letter-spacing:0.04em;margin-top:3px;">
+                                    Sessions
+                                </div>
+                            </div>
+                            <div style="text-align:center;padding:14px 8px;
+                                        border:2px solid #1a1a1a;border-radius:var(--radius-md);">
+                                <div style="font-family:var(--font-display);font-size:1.3rem;">
+                                    ${escapeHtml(s.totalTime || "0min")}
+                                </div>
+                                <div style="font-size:0.72rem;color:var(--muted);
+                                            text-transform:uppercase;letter-spacing:0.04em;margin-top:3px;">
+                                    Total Time
+                                </div>
+                            </div>
+                            <div style="text-align:center;padding:14px 8px;
+                                        border:2px solid #1a1a1a;border-radius:var(--radius-md);">
+                                <div style="font-family:var(--font-display);font-size:1.3rem;">
+                                    ${s.totalStatusUpdates || 0}
+                                </div>
+                                <div style="font-size:0.72rem;color:var(--muted);
+                                            text-transform:uppercase;letter-spacing:0.04em;margin-top:3px;">
+                                    Status Updates
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Add Friend button (centred below stats) -->
+                        <div style="text-align:center;margin-top:20px;">
+                            <button onclick="document.getElementById('friendProfileModal').remove();
+                                            StudyLink.showAddFriendRow();"
+                                    style="background:var(--accent);color:#1a1a1a;
+                                           border:2px solid #1a1a1a;border-radius:var(--radius-pill);
+                                           padding:12px 36px;font-family:var(--font-body);
+                                           font-size:0.95rem;font-weight:500;cursor:pointer;">
+                                Add Friend
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right column: Study Inspo -->
+                <div style="position:relative;">
+                    <button onclick="document.getElementById('friendProfileModal').remove();"
+                            style="position:absolute;top:-8px;right:-8px;
+                                   background:#fff;border:2px solid #1a1a1a;
+                                   border-radius:50%;width:32px;height:32px;
+                                   cursor:pointer;font-size:0.9rem;color:var(--muted);
+                                   display:flex;align-items:center;justify-content:center;
+                                   font-family:var(--font-body);">✕</button>
+
+                    <div style="border:2px solid #1a1a1a;border-radius:var(--radius-xl);padding:24px;">
+                        <div style="display:flex;justify-content:space-between;
+                                    align-items:center;margin-bottom:16px;">
+                            <span style="font-family:var(--font-display);font-style:italic;
+                                         font-size:1.3rem;font-weight:400;">Study Inspo</span>
+                            <span style="color:var(--muted);font-size:1rem;">···</span>
+                        </div>
+                        ${inspoHtml}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        // Click backdrop to close
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) overlay.remove();
+        });
+    }
+
     // ── Public API ────────────────────────────────────────────
     return {
         // Auth
         initLogin,
+
+        // Timer (global)
+        initFloatingTimer,
         initRegister,
         fetchMePublic,
 
@@ -1238,6 +1702,11 @@ const StudyLink = (() => {
         selectCustomStatus,
         cancelCreateRoom,
         setStatus,
+
+        // Room editing
+        showEditRoomPanel,
+        hideEditRoomPanel,
+        saveRoomEdit,
         endSession,
 
         // Friends
@@ -1259,6 +1728,7 @@ const StudyLink = (() => {
         saveInspoUrls,
         showAddFriendRow,
         hideAddFriendRow,
+        showFriendProfile,
 
         // Auth
         logout,
