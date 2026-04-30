@@ -19,13 +19,15 @@ def _oid(x: str) -> ObjectId:
 def create_session():
     data      = request.get_json(force=True) or {}
     title     = (data.get("title") or "Study Session").strip()
-    cover_url = (data.get("coverImage") or "").strip()   # optional image URL
+    cover_url   = (data.get("coverImage")   or "").strip()
+    description = (data.get("description")  or "").strip()
 
     db = get_db()
     session = {
         "ownerId":        request.user_id,
         "title":          title,
         "coverImage":     cover_url,
+        "description":    description,
         "startedAt":      _now(),
         "endedAt":        None,
         "active":         True,
@@ -130,6 +132,7 @@ def get_session(session_id: str):
             "title":          s.get("title", ""),
             "ownerId":        s.get("ownerId"),
             "coverImage":     s.get("coverImage", ""),
+            "description":    s.get("description", ""),
             "startedAt":      s.get("startedAt"),
             "endedAt":        s.get("endedAt"),
             "active":         s.get("active", False),
@@ -194,6 +197,52 @@ def set_status(session_id: str):
     return jsonify({"ok": True}), 201
 
 
+
+
+@sessions_bp.patch("/sessions/<session_id>")
+@require_auth
+def edit_session(session_id: str):
+    """
+    Owner-only: edit title, coverImage, and/or description of an active session.
+    """
+    db = get_db()
+    s  = db.sessions.find_one({"_id": _oid(session_id)})
+    if not s:
+        return jsonify({"error": "Session not found."}), 404
+    if s.get("ownerId") != request.user_id:
+        return jsonify({"error": "Only the owner can edit this session."}), 403
+
+    data    = request.get_json(force=True) or {}
+    updates = {}
+
+    if "title" in data:
+        title = (data["title"] or "").strip()
+        if title:
+            updates["title"] = title
+
+    if "coverImage" in data:
+        updates["coverImage"] = (data["coverImage"] or "").strip()
+
+    if "description" in data:
+        updates["description"] = (data["description"] or "").strip()
+
+    if not updates:
+        return jsonify({"error": "No valid fields provided."}), 400
+
+    db.sessions.update_one({"_id": _oid(session_id)}, {"$set": updates})
+
+    # Log the edit as an event
+    u    = db.users.find_one({"_id": ObjectId(request.user_id)}, {"displayName": 1})
+    name = u.get("displayName", "Owner") if u else "Owner"
+    db.events.insert_one({
+        "sessionId": session_id,
+        "userId":    request.user_id,
+        "type":      "STATUS",
+        "value":     f"{name} updated the room",
+        "timestamp": _now(),
+    })
+
+    return jsonify({"ok": True, "updates": updates})
 
 @sessions_bp.post("/sessions/<session_id>/leave")
 @require_auth

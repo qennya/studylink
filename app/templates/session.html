@@ -4,14 +4,57 @@
 
 {% block content %}
 
-<!-- Back header -->
+<!-- Back header + Edit Room button -->
 <section class="page-header">
-    <a href="/study-rooms" class="session-back">
-        &lt; <span id="sessionTitle" style="font-family:var(--font-display); font-style:italic;">Study Room</span>
-    </a>
+    <div class="row" style="justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <span class="session-back" style="cursor:default;">
+            &lt; <span id="sessionTitle" style="font-family:var(--font-display); font-style:italic;">Study Room</span>
+        </span>
+        <!-- Owner-only — shown by JS -->
+        <button class="btn btn-secondary" id="editRoomBtn"
+                style="display:none; font-size:0.88rem; padding:9px 18px;"
+                onclick="StudyLink.showEditRoomPanel()">
+            ✎ Edit Room
+        </button>
+    </div>
+
+    <!-- Room description (shown if set) -->
+    <p id="roomDescription"
+       style="display:none; margin-top:8px; color:var(--muted); font-size:0.95rem; max-width:600px;"></p>
 </section>
 
-<!-- Two-column layout: participants + status feed -->
+<!-- Edit Room panel (owner-only, hidden by default) -->
+<div id="editRoomPanel" style="display:none; margin-bottom:24px;">
+    <div class="panel" style="max-width:520px;">
+        <h2 style="margin-bottom:16px;">Edit Room</h2>
+        <div class="stack">
+            <div>
+                <label style="font-size:0.85rem; font-weight:500; display:block; margin-bottom:6px;">Room title</label>
+                <input id="editRoomTitle" placeholder="Room title" />
+            </div>
+            <div>
+                <label style="font-size:0.85rem; font-weight:500; display:block; margin-bottom:6px;">Cover image URL</label>
+                <input id="editRoomCover" placeholder="https://..." />
+            </div>
+            <div>
+                <label style="font-size:0.85rem; font-weight:500; display:block; margin-bottom:6px;">Description</label>
+                <textarea id="editRoomDesc" rows="3"
+                          placeholder="What are you studying? Any notes for participants..."
+                          style="resize:vertical;"></textarea>
+            </div>
+            <p id="editRoomMsg" class="muted small"></p>
+            <div class="row" style="justify-content:flex-end; gap:10px;">
+                <button class="btn btn-secondary"
+                        onclick="StudyLink.hideEditRoomPanel()">Cancel</button>
+                <button class="btn"
+                        style="background:var(--accent); color:var(--accent-text);"
+                        onclick="StudyLink.saveRoomEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Three-column layout: participants | right sidebar -->
 <div class="session-layout">
 
     <!-- Left: participant cards + status picker -->
@@ -53,10 +96,28 @@
         </div>
     </div>
 
-    <!-- Right: status feed -->
-    <div class="status-feed">
-        <div class="status-feed-title">Status Feeds</div>
-        <div id="statusFeed"></div>
+    <!-- Right: room preview + status feed -->
+    <div class="session-right-col">
+
+        <!-- Mini room preview card — updated live by JS -->
+        <div class="room-preview-card" id="roomPreviewCard">
+            <div class="room-preview-img-placeholder" id="roomPreviewImgWrap">📚</div>
+            <div class="room-preview-body">
+                <div class="room-preview-title" id="roomPreviewTitle">Study Room</div>
+                <div class="room-preview-desc" id="roomPreviewDesc" style="display:none;"></div>
+                <div class="room-preview-meta">
+                    <span class="room-preview-dot"></span>
+                    <span id="roomPreviewCount">— participants</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status feed -->
+        <div class="status-feed">
+            <div class="status-feed-title">Status Feeds</div>
+            <div id="statusFeed"></div>
+        </div>
+
     </div>
 
 </div>

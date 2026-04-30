@@ -196,3 +196,50 @@ def friends_active():
         })
 
     return jsonify({"friends": friends})
+
+@auth_bp.get("/friends/<friend_id>/profile")
+@require_auth
+def friend_profile(friend_id: str):
+    """
+    Returns a friend's public profile data for the profile modal.
+    Only accessible if the requester has this user in their friendIds.
+    """
+    db = get_db()
+
+    # Verify they are actually friends
+    me = db.users.find_one({"_id": ObjectId(request.user_id)}, {"friendIds": 1})
+    if not me:
+        return jsonify({"error": "User not found."}), 404
+    if friend_id not in me.get("friendIds", []):
+        return jsonify({"error": "Not your friend."}), 403
+
+    u = db.users.find_one(
+        {"_id": ObjectId(friend_id)},
+        {"passwordHash": 0, "email": 0}   # exclude sensitive fields
+    )
+    if not u:
+        return jsonify({"error": "Friend not found."}), 404
+
+    # Cumulative stats
+    s = u.get("stats", {})
+    total_sec = s.get("totalSeconds", 0)
+    hours = total_sec // 3600
+    mins  = (total_sec % 3600) // 60
+    time_str = f"{hours}hr {mins}min" if hours > 0 else f"{mins}min"
+
+    return jsonify({
+        "profile": {
+            "id":          str(u["_id"]),
+            "displayName": u.get("displayName", ""),
+            "pfp_url":     u.get("pfp_url", ""),
+            "bio":         u.get("bio", ""),
+            "school":      u.get("school", ""),
+            "major":       u.get("major", ""),
+            "inspo_urls":  u.get("inspo_urls", []),
+            "stats": {
+                "totalSessions":      s.get("totalSessions", 0),
+                "totalTime":          time_str,
+                "totalStatusUpdates": s.get("totalStatusUpdates", 0),
+            }
+        }
+    })

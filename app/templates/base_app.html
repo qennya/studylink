@@ -1,6 +1,16 @@
 <!doctype html>
 <html lang="en">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9RFYFP4S2B"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-9RFYFP4S2B');
+    </script>
+
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}StudyLink{% endblock %}</title>
@@ -68,6 +78,14 @@
 
 <script src="/static/app.js"></script>
 
+<!-- ── Floating timer widget (shown on all pages when timer is running) ── -->
+<div id="floatTimer" style="display:none;"
+     class="float-timer">
+    <span id="floatTimerDisplay" class="float-timer-time">25:00</span>
+    <button id="floatPauseBtn" class="float-timer-btn" title="Pause / Resume">⏸</button>
+    <button id="floatCloseBtn" class="float-timer-btn float-timer-close" title="Stop timer">✕</button>
+</div>
+
 <!-- Populate sidebar user info on every page -->
 <script>
     (async () => {
@@ -102,5 +120,6 @@
 </script>
 
 {% block page_scripts %}{% endblock %}
+<script>StudyLink.initFloatingTimer();</script>
 </body>
 </html>
