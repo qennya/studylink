@@ -10,7 +10,7 @@
 
         gtag('config', 'G-9RFYFP4S2B');
     </script>
-    
+
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>StudyLink◇ — Study together, without the noise</title>
@@ -334,6 +334,172 @@
             color: var(--muted);
             margin-top: 3px;
         }
+        /* ── Private Room showcase section ─────────────────────── */
+        .private-showcase {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 100px 48px;
+            display: grid;
+            grid-template-columns: 400px 340px 1fr;
+            gap: 44px;
+            align-items: center;
+        }
+
+        .mini-profile-card {
+            border: 2px solid #1a1a1a;
+            border-radius: 20px;
+            padding: 28px;
+            background: #fff;
+        }
+
+        .mini-profile-header {
+            display: flex;
+            gap: 18px;
+            align-items: flex-start;
+            margin-bottom: 36px;
+        }
+
+        .mini-profile-avatar {
+            width: 130px;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid #1a1a1a;
+            flex-shrink: 0;
+            background: #f0f0f0;
+        }
+
+        .mini-profile-name {
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .mini-profile-bio {
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .mini-profile-dots {
+            font-size: 0.7rem;
+            letter-spacing: 4px;
+            color: #ccc;
+            margin-bottom: 12px;
+        }
+
+        .mini-profile-meta {
+            font-size: 0.85rem;
+            font-family: 'Courier New', monospace;
+            line-height: 1.9;
+            color: #1a1a1a;
+        }
+
+        .mini-profile-label {
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: 1.1rem;
+        }
+
+        .mini-stats {
+            border: 2px solid #1a1a1a;
+            border-radius: 16px;
+            padding: 22px;
+            background: #fff;
+            margin-top: 18px;
+        }
+
+        .mini-stats-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 14px;
+        }
+
+        .mini-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .mini-stat {
+            text-align: center;
+            border: 2px solid #1a1a1a;
+            border-radius: 10px;
+            padding: 16px 8px;
+        }
+
+        .mini-stat-val {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+        }
+
+        .mini-stat-lbl {
+            font-size: 0.68rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 4px;
+        }
+
+        .mini-inspo-panel {
+            border: 2px solid #1a1a1a;
+            border-radius: 20px;
+            padding: 26px;
+            background: #fff;
+        }
+
+        .mini-inspo-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: 1.4rem;
+            margin-bottom: 16px;
+        }
+
+        .mini-inspo-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 12px;
+            display: block;
+            margin-bottom: 14px;
+        }
+
+        .mini-inspo-img:last-child { margin-bottom: 0; }
+
+        .private-showcase-copy {
+            padding-left: 24px;
+        }
+
+        .private-showcase-copy h2 {
+            font-family: var(--font-display);
+            font-size: clamp(2.4rem, 4.5vw, 3.8rem);
+            font-weight: 400;
+            line-height: 1.15;
+            margin-bottom: 20px;
+        }
+
+        .private-showcase-copy p {
+            font-size: 1.1rem;
+            color: var(--muted);
+            line-height: 1.8;
+        }
+
+        @media (max-width: 960px) {
+            .private-showcase {
+                grid-template-columns: 1fr;
+                padding: 60px 24px;
+                gap: 20px;
+            }
+            .private-showcase-copy { padding-left: 0; }
+        }
 
         /* ── Features section ──────────────────────────────────── */
         .features {
@@ -599,6 +765,78 @@
 
 </section>
 
+<!-- ── Private Room showcase ────────────────────────────────── -->
+<section style="border-top: 2px solid #1a1a1a;">
+    <div class="private-showcase">
+
+        <!-- Left: profile card + stats -->
+        <div class="fade-in">
+            <div class="mini-profile-card">
+                <div class="mini-profile-header">
+                    <img class="mini-profile-avatar"
+                         src="https://i.pinimg.com/736x/79/9a/45/799a45929e2f91efc48e62474695ea4c.jpg"
+                         alt="Marifer"
+                         onerror="this.style.background='#daf0fb';" />
+                    <div>
+                        <div class="mini-profile-name">Marifer</div>
+                        <div class="mini-profile-bio">"He is stable, you are deep!!!"</div>
+                        <div class="mini-profile-dots">✦ ° ✦ ° ✦ ° ✦</div>
+                        <div class="mini-profile-meta">
+                            School: California, Polytechnic<br>
+                            Major: Computer Science
+                        </div>
+                    </div>
+                </div>
+                <div class="mini-profile-label">Studylink ID</div>
+            </div>
+
+            <div class="mini-stats">
+                <div class="mini-stats-title">My Study Stats</div>
+                <div class="mini-stats-grid">
+                    <div class="mini-stat">
+                        <div class="mini-stat-val">16</div>
+                        <div class="mini-stat-lbl">Sessions</div>
+                    </div>
+                    <div class="mini-stat">
+                        <div class="mini-stat-val">6hr 16min</div>
+                        <div class="mini-stat-lbl">Total Time</div>
+                    </div>
+                    <div class="mini-stat">
+                        <div class="mini-stat-val">70</div>
+                        <div class="mini-stat-lbl">Status Updates</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle: study inspo panel -->
+        <div class="mini-inspo-panel fade-in" style="transition-delay:0.1s;">
+            <div class="mini-inspo-title">
+                Study Inspo
+                <span style="color:var(--muted); font-style:normal; font-family:var(--font-body);">···</span>
+            </div>
+            <img class="mini-inspo-img"
+                 src="https://i.pinimg.com/736x/f8/00/be/f800bea4f45729f2edb06830c44482c9.jpg"
+                 alt="Study inspo 1" />
+            <img class="mini-inspo-img"
+                 src="https://i.pinimg.com/1200x/bd/70/61/bd7061e68ee308134bc6ebf5a741aafb.jpg"
+                 alt="Study inspo 2" />
+            <img class="mini-inspo-img"
+                 src="https://i.pinimg.com/736x/8d/79/5a/8d795a0511e38183705ee5810b40c8d2.jpg"
+                 alt="Study inspo 3" />
+        </div>
+
+        <!-- Right: copy -->
+        <div class="private-showcase-copy fade-in" style="transition-delay:0.2s;">
+            <h2>Own Your Study Style</h2>
+            <p>
+                Decorate your private room and get personalized study ID stats!
+            </p>
+        </div>
+
+    </div>
+</section>
+
 <!-- ── Features ─────────────────────────────────────────────── -->
 <section class="features" id="features">
     <div class="features-inner">
@@ -655,9 +893,9 @@
         { title: "HW 2 due tonight",       participants: 3, img: "https://i.pinimg.com/736x/7c/ee/ec/7ceeecc522430fddca3024217114291a.jpg", emoji: "😵", color: "#e8e8e8" },
         { title: "Physics Lecture 1 & 2",  participants: 2, img: "https://i.pinimg.com/736x/4c/1e/00/4c1e007d03c40d8829425f775e62f26a.jpg", emoji: "🧪", color: "#fce0e6" },
         { title: "CS4800 Final Prep",      participants: 4, img: "https://i.pinimg.com/736x/2a/fe/24/2afe24462ea372fd23d6256f591c8f37.jpg", emoji: "💻", color: "#daf0fb" },
-        { title: "Bio Study Group",        participants: 2, img: "https://i.pinimg.com/1200x/1a/3c/71/1a3c712a126644d7987d6877ae79b536.jpg", emoji: "🔬", color: "#dff5db" },
-        { title: "Econ Midterm Grind",     participants: 1, img: "https://i.pinimg.com/736x/80/85/e0/8085e06a8de8d4c0bf5c6f24a4ee6942.jpg", emoji: "📈", color: "#f5f5f5" },
-        { title: "Math 241 HW",            participants: 3, img: "https://i.pinimg.com/736x/34/39/9c/34399c6fb20f0c46e7df62869dcaaac8.jpg", emoji: "📐", color: "#fce0e6" },
+        { title: "Bio Study Group",        participants: 2, img: "https://i.pinimg.com/736x/58/d3/60/58d360eb3c1c95bc03ed4255b8dd710b.jpg", emoji: "🔬", color: "#dff5db" },
+        { title: "Econ Midterm Grind",     participants: 1, img: "https://i.pinimg.com/736x/20/71/b3/2071b333e11fe8b0dad338d185b6b0b3.jpg", emoji: "📈", color: "#f5f5f5" },
+        { title: "Math 241 HW",            participants: 3, img: "https://i.pinimg.com/736x/07/7e/0b/077e0bc8a5de946c887e9e5951921e73.jpg", emoji: "📐", color: "#fce0e6" },
     ];
 
     function buildCard(room) {
